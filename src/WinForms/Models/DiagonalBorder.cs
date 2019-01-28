@@ -12,9 +12,6 @@ namespace CSharpSnookerCore.Models
         public Side Side { get; }
 
 
-        public static string message;
-
-
 
         public DiagonalBorder(int x1, int y1, int width, Side side)
         {
@@ -39,66 +36,6 @@ namespace CSharpSnookerCore.Models
         }
 
 
-
-        public bool Colliding(Ball ball)
-        {
-            int baseX = X1;
-            int baseY = Y1 - Width;
-
-            if (!ball.IsBallInPocket)
-            {
-                if (Side == Side.Southeast)
-                {
-                    int x = (int)ball.X + (int)Ball.Radius;
-                    int y = (int)ball.Y + (int)Ball.Radius;
-
-                    Vector2D maxPoint = new Vector2D((double)(ball.X + Ball.CosBall45) - 1, (double)(ball.Y + Ball.CosBall45) - 1);
-
-                    if ((x - baseX + y - baseY >= Width) && (maxPoint.X >= X1 && maxPoint.X <= X2 && maxPoint.Y >= Y2 && maxPoint.Y <= Y1))
-                    {
-                        return true;
-                    }
-                }
-                else if (Side == Side.Northwest)
-                {
-                    int x = (int)ball.X - (int)Ball.Radius;
-                    int y = (int)ball.Y - (int)Ball.Radius;
-
-                    Vector2D maxPoint = new Vector2D((double)(ball.X - Ball.CosBall45) - 1, (double)(ball.Y - Ball.CosBall45) - 1);
-
-                    if ((x - baseX + y - baseY <= Width) && (maxPoint.X >= X1 && maxPoint.X <= X2 && maxPoint.Y >= Y2 && maxPoint.Y <= Y1))
-                    {
-                        return true;
-                    }
-                }
-                else if (Side == Side.Northeast)
-                {
-                    int x = (int)ball.X + (int)Ball.Radius;
-                    int y = (int)ball.Y - (int)Ball.Radius;
-
-                    Vector2D maxPoint = new Vector2D((double)(ball.X + Ball.CosBall45) - 1, (double)(ball.Y - Ball.CosBall45) - 1);
-
-                    if ((x - baseX + Y2 - y >= Width) && (maxPoint.X >= X1 && maxPoint.X <= X2 && maxPoint.Y >= Y1 && maxPoint.Y <= Y2))
-                    {
-                        return true;
-                    }
-                }
-                else if (Side == Side.Southwest)
-                {
-                    int x = (int)ball.X - (int)Ball.Radius;
-                    int y = (int)ball.Y + (int)Ball.Radius;
-
-                    Vector2D maxPoint = new Vector2D((double)(ball.X - Ball.CosBall45) - 1, (double)(ball.Y + Ball.CosBall45) - 1);
-
-                    if ((x - baseX + Y2 - y <= Width) && (maxPoint.X >= X1 && maxPoint.X <= X2 && maxPoint.Y >= Y1 && maxPoint.Y <= Y2))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
 
         public void ResolveCollision(Ball ball)
         {

@@ -24,13 +24,14 @@ namespace CSharpSnooker.WinForms
         GameOver
     }
 
-    public partial class MainForm : Form, IBallObserver, IBorderObserver
+    public partial class MainForm : Form, IBallObserver
     {
         private readonly PlayerManager _playerManager;
         private readonly SoundManager _soundManager;
         private readonly SnapShotGenerator _snapShotGenerator;
         private readonly BallManager _ballManager;
         private readonly PocketManager _pocketManager;
+        private readonly BorderManager _borderManager;
 
 
         bool showBallOn = true;
@@ -42,9 +43,7 @@ namespace CSharpSnooker.WinForms
         Rectangle targetRectangle = new Rectangle(68, 269, 71, 71);
 
         PoolState poolState = PoolState.AwaitingShot;
-        Single friction = 0.0075F;
-        List<TableBorder> tableBorders = new List<TableBorder>();
-        List<DiagonalBorder> diagonalBorders = new List<DiagonalBorder>();
+        float friction = 0.0075F;
         
         Image imgQuestionBall;
         Image imgShadow;
@@ -66,6 +65,9 @@ namespace CSharpSnooker.WinForms
             _pocketManager = new PocketManager(this);
             _pocketManager.OnPotting += OnBallPotting;
 
+            _borderManager = new BorderManager();
+            _borderManager.OnCollision += OnBorderCollision;
+
             lblPlayer1Name.Text = _playerManager.CurrentPlayer.Name;
             lblPlayer2Name.Text = _playerManager.OtherPlayer.Name;
 
@@ -76,27 +78,6 @@ namespace CSharpSnooker.WinForms
 
             _ballManager.Load(this);
 
-            diagonalBorders.Add(new DiagonalBorder(547, 309, 35, Side.Southwest));
-            diagonalBorders.Add(new DiagonalBorder(573, 286, 35, Side.Northeast));
-            diagonalBorders.Add(new DiagonalBorder(1, 27, 35, Side.Southwest));
-            diagonalBorders.Add(new DiagonalBorder(24, 1, 35, Side.Northeast));
-            diagonalBorders.Add(new DiagonalBorder(546, 33, 35, Side.Northwest));
-            diagonalBorders.Add(new DiagonalBorder(567, 59, 35, Side.Southeast));
-            diagonalBorders.Add(new DiagonalBorder(1, 319, 35, Side.Northwest));
-            diagonalBorders.Add(new DiagonalBorder(18, 344, 35, Side.Southeast));
-
-            tableBorders.Add(new TableBorder(this, 0, 55, 27, 235, ForcedDirection.None));
-            tableBorders.Add(new TableBorder(this, 577, 55, 27, 235, ForcedDirection.None));
-            tableBorders.Add(new TableBorder(this, 51, 0, 230, 27, ForcedDirection.None));
-            tableBorders.Add(new TableBorder(this, 51, 316, 230, 27, ForcedDirection.None));
-            tableBorders.Add(new TableBorder(this, 319, 0, 235, 27, ForcedDirection.None));
-            tableBorders.Add(new TableBorder(this, 319, 316, 235, 27, ForcedDirection.None));
-
-            tableBorders.Add(new TableBorder(this, -20, 55, 20, 289, ForcedDirection.None));
-            tableBorders.Add(new TableBorder(this, 606, 55, 20, 289, ForcedDirection.None));
-            tableBorders.Add(new TableBorder(this, 0, -20, 606, 20, ForcedDirection.None));
-            tableBorders.Add(new TableBorder(this, 0, 344, 606, 20, ForcedDirection.None));
-
             lblStrenght.Width = (int)((_playerManager.CurrentPlayer.Strength * (thermometerRectangle.Width - 12) / 100.0));
             _playerManager.CurrentPlayer.BallOn = _ballManager.Balls[1];
             SetBallOnImage();
@@ -104,9 +85,12 @@ namespace CSharpSnooker.WinForms
             timerInBox.Enabled = _playerManager.CurrentPlayer.IsComputer;
 
             UpdatePlayerState(PlayerState.Aiming);
+
             _playerManager.CurrentPlayer.BallOn = _ballManager.GetRandomRedBall();
             _playerManager.CurrentPlayer.Strength = GetRandomStrenght();
+
             SetBallOnImage();
+
             timerComputer.Enabled = true;
         }
 
@@ -118,6 +102,11 @@ namespace CSharpSnooker.WinForms
 
             _ballManager.FallenBalls.Add(e.Ball);
             _ballManager.PottedBalls.Add(e.Ball);
+        }
+
+        private void OnBorderCollision(BorderCollisionEventArgs e)
+        {
+            _soundManager.Add(_snapShotGenerator.SnapShotCount, new BankSound(e.Ball));
         }
 
         private void ClearFramesAndSounds()
@@ -180,18 +169,18 @@ namespace CSharpSnooker.WinForms
                             ballA.TranslateVelocity.Y = 0.0;
                         }
 
-                        foreach (DiagonalBorder diagonalBorder in diagonalBorders)
+                        foreach (DiagonalBorder diagonalBorder in _borderManager.DiagonalBorders)
                         {
-                            if (diagonalBorder.Colliding(ballA) && !ballA.IsBallInPocket)
+                            if (_borderManager.CheckCollision(ballA, diagonalBorder) && !ballA.IsBallInPocket)
                             {
                                 diagonalBorder.ResolveCollision(ballA);
                             }
                         }
 
                         RectangleCollision borderCollision = RectangleCollision.None;
-                        foreach (TableBorder tableBorder in tableBorders)
+                        foreach (TableBorder tableBorder in _borderManager.TableBorders)
                         {
-                            borderCollision = tableBorder.Colliding(ballA);
+                            borderCollision = _borderManager.CheckCollision(ballA, tableBorder);
 
                             if (borderCollision != RectangleCollision.None && !ballA.IsBallInPocket)
                             {
@@ -369,12 +358,12 @@ namespace CSharpSnooker.WinForms
 
         private void DrawBorderLines()
         {
-            foreach (DiagonalBorder diagonalBorder in diagonalBorders)
+            foreach (DiagonalBorder diagonalBorder in _borderManager.DiagonalBorders)
             {
                 tableGraphics.DrawLine(new Pen(Brushes.White), diagonalBorder.X1, diagonalBorder.Y1, diagonalBorder.X2, diagonalBorder.Y2);
             }
 
-            foreach (TableBorder tableBorder in tableBorders)
+            foreach (TableBorder tableBorder in _borderManager.TableBorders)
             {
                 tableGraphics.DrawRectangle(new Pen(Brushes.White), tableBorder.X, tableBorder.Y, tableBorder.Width, tableBorder.Height);
             }
@@ -719,11 +708,6 @@ namespace CSharpSnooker.WinForms
         public void Hit(string volume, Ball ball)
         {
             _soundManager.Add(_snapShotGenerator.SnapShotCount, new HitSound(volume, ball));
-        }
-
-        public void WallCollision(Ball ball)
-        {
-            _soundManager.Add(_snapShotGenerator.SnapShotCount, new BankSound(ball));
         }
 
         private void picTable_MouseUp(object sender, MouseEventArgs e)

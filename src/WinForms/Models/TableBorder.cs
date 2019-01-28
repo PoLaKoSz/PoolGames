@@ -10,61 +10,26 @@ namespace CSharpSnookerCore.Models
         public int Height { get; set; }
 
 
-        ForcedDirection direction = ForcedDirection.None;
-        public static string message;
-        private readonly IBorderObserver _observer;
+        private readonly ForcedDirection Direction;
 
 
 
-        public TableBorder(IBorderObserver observer, int x, int y, int width, int height, ForcedDirection direction)
+        public TableBorder(int x, int y, int width, int height, ForcedDirection direction)
         {
-            this._observer = observer;
             X = x;
             Y = y;
             Width = width;
             Height = height;
-            this.direction = direction;
+            Direction = direction;
         }
 
 
-
-
-
-        public RectangleCollision Colliding(Ball ball)
-        {
-            RectangleCollision collision = RectangleCollision.None;
-
-            if (!ball.IsBallInPocket)
-            {
-                if (X < 288 && (ball.X - Ball.Radius < X + Width) && (ball.Y >= Y && ball.Y <= Y + Height) && (ball.TranslateVelocity.X + ball.VSpinVelocity.X < 0.0d) && (ball.LastX > X + Width))
-                {
-                    collision = RectangleCollision.Right;
-                }
-                else if (X > 288 && (ball.X + Ball.Radius > X) && (ball.Y >= Y && ball.Y <= Y + Height) && (ball.TranslateVelocity.X + ball.VSpinVelocity.X > 0.0d) && (ball.LastX < X))
-                {
-                    collision = RectangleCollision.Left;
-                }
-
-                if (Y < 161 && (ball.Y - Ball.Radius < Y + Height) && (ball.X >= X && ball.X - Ball.Radius <= X + Width) && (ball.TranslateVelocity.Y + ball.VSpinVelocity.Y < 0.0d) && (ball.LastY > Y) && (ball.LastX < X + Width))
-                {
-                    collision = RectangleCollision.Bottom;
-                }
-                else if (Y > 161 && (ball.Y + Ball.Radius > Y) && (ball.X >= X && ball.X <= X + Width) && (ball.TranslateVelocity.Y + ball.VSpinVelocity.Y > 0.0d) && (ball.LastY < Y) && (ball.LastY < Y) && (ball.LastX < X + Width))
-                {
-                    collision = RectangleCollision.Top;
-                }
-            }
-
-            return collision;
-        }
 
         public void ResolveCollision(Ball ball, RectangleCollision collision)
         {
-            _observer.WallCollision(ball);
-
             float absorption = 0.9f;
 
-            if (this.direction == ForcedDirection.None)
+            if (this.Direction == ForcedDirection.None)
             {
                 switch (collision)
                 {
@@ -92,7 +57,7 @@ namespace CSharpSnookerCore.Models
             {
                 Vector2D position = new Vector2D(X + Width / 2, Y + Height / 2);
 
-                switch (this.direction)
+                switch (this.Direction)
                 {
                     case ForcedDirection.Up:
                         ball.TranslateVelocity.Y *= -0.5d;
@@ -132,7 +97,7 @@ namespace CSharpSnookerCore.Models
                 float i = Math.Abs((float)((-(1.0f + 0.1) * vn) / (im1 + im2)));
                 Vector2D impulse = mtd.Multiply(1);
 
-                switch (this.direction)
+                switch (this.Direction)
                 {
                     case ForcedDirection.Up:
                         ball.TranslateVelocity = ball.TranslateVelocity.Add(new Vector2D((double)0, (double)vn));
