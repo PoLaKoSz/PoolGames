@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\PlayerManger.cs" />
+    <Compile Include="Components\SnapShotGenerator.cs" />
     <Compile Include="Components\SoundManager.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

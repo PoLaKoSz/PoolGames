@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Threading;
 using System.Windows.Forms;
 using CSharpSnooker.WinForms.Components;
@@ -40,13 +39,11 @@ namespace CSharpSnooker.WinForms
     {
         private readonly PlayerManager _playerManager;
         private readonly SoundManager _soundManager;
+        private readonly SnapShotGenerator _snapShotGenerator;
 
 
         bool showBallOn = true;
-        int snapShotCount = 0;
-        int maxSnapShot = 0;
-        int currentSnapShot = 1;
-        int videoRefreshRate = 2;
+        
         const int MAX_COMPUTER_ATTEMPTS = 2;
         Vector2D targetVector = new Vector2D(0, 0);
 
@@ -59,22 +56,15 @@ namespace CSharpSnooker.WinForms
         List<Pocket> pockets = new List<Pocket>();
         List<TableBorder> tableBorders = new List<TableBorder>();
         List<DiagonalBorder> diagonalBorders = new List<DiagonalBorder>();
-        Image imgTable;
+        
         Image imgQuestionBall;
         Image imgShadow;
         Graphics tableGraphics;
-        private Bitmap bufferedBitmap;
-        private Graphics bufferedGraphics;
-        ImageAttributes attr = new ImageAttributes();
         List<Ball> pottedBalls = new List<Ball>();
         List<Ball> fallenBalls = new List<Ball>();
         List<Ball> strokenBalls = new List<Ball>();
         int moveCount = 0;
-        List<Bitmap> whiteBitmapList = new List<Bitmap>();
-        List<Graphics> whiteBitmapGraphicsList = new List<Graphics>();
         PlayerState playerState = PlayerState.None;
-        List<BallPosition> ballPositionList = new List<BallPosition>();
-        int gifIndex = 1;
 
 
 
@@ -85,10 +75,10 @@ namespace CSharpSnooker.WinForms
 
             InitializeComponent();
 
+            _snapShotGenerator = new SnapShotGenerator(picTable, balls, _soundManager);
+
             lblPlayer1Name.Text = _playerManager.CurrentPlayer.Name;
             lblPlayer2Name.Text = _playerManager.OtherPlayer.Name;
-
-            imgTable = Image.FromFile(@"Images\tableBlue.jpg");
 
             ClearFramesAndSounds();
 
@@ -125,8 +115,6 @@ namespace CSharpSnooker.WinForms
             tableBorders.Add(new TableBorder(this, 0, -20, 606, 20, ForcedDirection.None));
             tableBorders.Add(new TableBorder(this, 0, 344, 606, 20, ForcedDirection.None));
 
-            attr.SetColorKey(Color.White, Color.White);
-
             lblStrenght.Width = (int)((_playerManager.CurrentPlayer.Strength * (thermometerRectangle.Width - 12) / 100.0));
             _playerManager.CurrentPlayer.BallOn = balls[1];
             SetBallOnImage();
@@ -145,14 +133,9 @@ namespace CSharpSnooker.WinForms
         private void ClearFramesAndSounds()
         {
             _soundManager.Empty();
-            whiteBitmapList.Clear();
-            whiteBitmapGraphicsList.Clear();
 
             for (int i = 0; i < 300; i++)
             {
-                Bitmap bmp = new Bitmap(imgTable);
-                whiteBitmapList.Add(bmp);
-                whiteBitmapGraphicsList.Add(Graphics.FromImage(bmp));
                 _soundManager.Add();
             }
         }
@@ -393,25 +376,25 @@ namespace CSharpSnooker.WinForms
         private void AfterBallsGetStill(bool test)
         {
             MoveBall(true);
-            maxSnapShot = snapShotCount;
+            _snapShotGenerator.UpdateMaxSnapshot();
 
             if (!test)
             {
-                DrawSnapShots();
-                PlayLastShot();
+                _snapShotGenerator.DrawSnapShots();
+                _snapShotGenerator.PlayLastShot();
             }
 
             ProcessFallenBalls(test);
 
             if (playerState != PlayerState.GameOver)
             {
-                ballPositionList.Clear();
+                _snapShotGenerator.PositionsClear();
                 MoveBall(true);
 
                 if (!test)
                 {
-                    DrawSnapShots();
-                    PlayLastShot();
+                    _snapShotGenerator.DrawSnapShots();
+                    _snapShotGenerator.PlayLastShot();
                     if (!_playerManager.CurrentPlayer.IsComputer)
                     {
                         picTable.Cursor = Cursors.AppStarting;
@@ -423,7 +406,7 @@ namespace CSharpSnooker.WinForms
                     picTable.Cursor = Cursors.SizeAll;
                 }
 
-                ballPositionList.Clear();
+                _snapShotGenerator.PositionsClear();
 
                 if (!test)
                 {
@@ -436,22 +419,6 @@ namespace CSharpSnooker.WinForms
                 }
             }
             return;
-        }
-
-        private void PlayLastShot()
-        {
-            currentSnapShot = 1;
-            if (ballPositionList.Count > 0)
-            {
-                maxSnapShot = ballPositionList[ballPositionList.Count - 1].SnapShot + 1;
-            }
-
-            gifIndex = 1;
-            while (currentSnapShot <= maxSnapShot)
-            {
-                Thread.Sleep(videoRefreshRate * 10);
-                PlaySnapShot();
-            }
         }
 
         private void DrawBorderLines()
@@ -470,24 +437,6 @@ namespace CSharpSnooker.WinForms
             {
                 tableGraphics.DrawEllipse(new Pen(Brushes.White), pocket.X - (int)Ball.Radius, pocket.Y - (int)Ball.Radius, (int)Ball.Radius * 2, (int)Ball.Radius * 2);
             }
-        }
-
-        private void ClearSequenceBackGround()
-        {
-            for (int i = 0; i < snapShotCount; i++)
-            {
-                whiteBitmapList[i].Dispose();
-                whiteBitmapGraphicsList[i].Dispose();
-            }
-
-            imgTable = Image.FromFile(@"Images\tableBlue.JPG");
-            for (int i = 0; i < snapShotCount; i++)
-            {
-                Bitmap bmp = new Bitmap(imgTable);
-                whiteBitmapList[i] = bmp;
-                whiteBitmapGraphicsList[i] = Graphics.FromImage(bmp);
-            }
-            snapShotCount = 0;
         }
 
         private void ProcessFallenBalls(bool test)
@@ -632,7 +581,7 @@ namespace CSharpSnooker.WinForms
                     }
                 }
 
-                ballPositionList.Clear();
+                _snapShotGenerator.PositionsClear();
 
                 _playerManager.OtherPlayer.JustSwapped = true;
                 _playerManager.CurrentPlayer.JustSwapped = swappedPlayers;
@@ -739,7 +688,7 @@ namespace CSharpSnooker.WinForms
         {
             moveCount++;
 
-            if (moveCount < videoRefreshRate && !forcePaint)
+            if (moveCount < _snapShotGenerator.VideoRefreshRate && !forcePaint)
             {
                 return;
             }
@@ -774,7 +723,7 @@ namespace CSharpSnooker.WinForms
 
                     if (!ball.IsBallInPocket)
                     {
-                        ballPositionList.Add(new BallPosition(snapShotCount, index, X, Y));
+                        _snapShotGenerator.Add(index, ball);
 
                         ball.LastX = ball.X;
                         ball.LastY = ball.Y;
@@ -782,29 +731,7 @@ namespace CSharpSnooker.WinForms
                     index++;
                 }
 
-                snapShotCount++;
-            }
-        }
-
-        private void DrawSnapShots()
-        {
-            ClearSequenceBackGround();
-
-            int snapShot = -1;
-
-            Graphics whiteBitmapGraphics = null;
-
-            //For each ball, draws an image of that ball over the pool background image
-            foreach (BallPosition ballPosition in ballPositionList)
-            {
-                if (ballPosition.SnapShot != snapShot)
-                {
-                    snapShot = ballPosition.SnapShot;
-                    whiteBitmapGraphics = whiteBitmapGraphicsList[snapShot];
-                }
-
-                //draws an image of a ball over the pool background image
-                whiteBitmapGraphics.DrawImage(balls[ballPosition.BallIndex].Image, new Rectangle((int)(ballPosition.X - Ball.Radius), (int)(ballPosition.Y - Ball.Radius), (int)Ball.Radius * 2, (int)Ball.Radius * 2), 0, 0, (int)Ball.Radius * 2, (int)Ball.Radius * 2, GraphicsUnit.Pixel, attr);
+                _snapShotGenerator.NextFrame();
             }
         }
 
@@ -824,14 +751,9 @@ namespace CSharpSnooker.WinForms
                     if (tableGraphics == null)
                     {
                         tableGraphics = picTable.CreateGraphics();
-                        bufferedBitmap = new Bitmap(picTable.Width, picTable.Height);
-                        bufferedGraphics = Graphics.FromImage(bufferedBitmap);
                         MoveBall(true);
-                        DrawSnapShots();
-                        PlaySnapShot();
-                        ballPositionList.Clear();
-                        currentSnapShot = 1;
-                        snapShotCount = 0;
+                        _snapShotGenerator.DrawSnapShots();
+                        _snapShotGenerator.PlaySnapShot();
                     }
                     break;
 
@@ -848,8 +770,8 @@ namespace CSharpSnooker.WinForms
         private void HitBall(int x, int y, bool test)
         {
             //Reset the frames and ball positions
-            ClearSequenceBackGround();
-            ballPositionList.Clear();
+            _snapShotGenerator.ClearSequenceBackGround();
+            _snapShotGenerator.PositionsClear();
 
             poolState = PoolState.Moving;
             picTable.Cursor = Cursors.WaitCursor;
@@ -873,7 +795,7 @@ namespace CSharpSnooker.WinForms
             double topBottomVelocityRatio = balls[0].TranslateVelocity.Lenght() * (targetVector.Y / 100.0);
             balls[0].VSpinVelocity = new Vector2D(-1.0d * topBottomVelocityRatio * normalVelocity.X, -1.0d * topBottomVelocityRatio * normalVelocity.Y);
             
-            _soundManager.Add(snapShotCount, new ShotSound(balls[0]));
+            _soundManager.Add(_snapShotGenerator.SnapShotCount, new ShotSound(balls[0]));
 
             //Calculates the ball positions as long as there are moving balls
             while (poolState == PoolState.Moving)
@@ -908,12 +830,12 @@ namespace CSharpSnooker.WinForms
 
         public void Hit(string volume, Ball ball)
         {
-            _soundManager.Add(snapShotCount, new HitSound(volume, ball));
+            _soundManager.Add(_snapShotGenerator.SnapShotCount, new HitSound(volume, ball));
         }
 
         public void BallDropped(Ball ball)
         {
-            _soundManager.Add(snapShotCount, new FallSound(ball));
+            _soundManager.Add(_snapShotGenerator.SnapShotCount, new FallSound(ball));
 
             fallenBalls.Add(ball);
             pottedBalls.Add(ball);
@@ -923,19 +845,7 @@ namespace CSharpSnooker.WinForms
 
         public void WallCollision(Ball ball)
         {
-            _soundManager.Add(snapShotCount, new BankSound(ball));
-        }
-
-        private void PlaySnapShot()
-        {
-            //Plays an individual frame, by replacing the image of the picturebox with
-            //the stored image of a frame
-            picTable.Image = whiteBitmapList[currentSnapShot - 1]; ;
-            picTable.Refresh();
-
-            _soundManager.Play(currentSnapShot - 1);
-
-            currentSnapShot++;
+            _soundManager.Add(_snapShotGenerator.SnapShotCount, new BankSound(ball));
         }
 
         private void picTable_MouseUp(object sender, MouseEventArgs e)
