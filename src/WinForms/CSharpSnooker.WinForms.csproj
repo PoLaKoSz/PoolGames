@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\BallManager.cs" />
     <Compile Include="Components\PlayerManger.cs" />
     <Compile Include="Components\SnapShotGenerator.cs" />
     <Compile Include="Components\SoundManager.cs" />

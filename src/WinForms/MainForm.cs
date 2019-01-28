@@ -15,18 +15,6 @@ namespace CSharpSnooker.WinForms
         Moving
     }
 
-    public enum BallValues
-    {
-        White = 0,
-        Red = 1,
-        Yellow = 2,
-        Green = 3,
-        Brown = 4,
-        Blue = 5,
-        Pink = 6,
-        Black = 7
-    }
-
     public enum PlayerState
     {
         None,
@@ -40,6 +28,7 @@ namespace CSharpSnooker.WinForms
         private readonly PlayerManager _playerManager;
         private readonly SoundManager _soundManager;
         private readonly SnapShotGenerator _snapShotGenerator;
+        private readonly BallManager _ballManager;
 
 
         bool showBallOn = true;
@@ -52,7 +41,6 @@ namespace CSharpSnooker.WinForms
 
         PoolState poolState = PoolState.AwaitingShot;
         Single friction = 0.0075F;
-        List<Ball> balls = new List<Ball>();
         List<Pocket> pockets = new List<Pocket>();
         List<TableBorder> tableBorders = new List<TableBorder>();
         List<DiagonalBorder> diagonalBorders = new List<DiagonalBorder>();
@@ -60,9 +48,6 @@ namespace CSharpSnooker.WinForms
         Image imgQuestionBall;
         Image imgShadow;
         Graphics tableGraphics;
-        List<Ball> pottedBalls = new List<Ball>();
-        List<Ball> fallenBalls = new List<Ball>();
-        List<Ball> strokenBalls = new List<Ball>();
         int moveCount = 0;
         PlayerState playerState = PlayerState.None;
 
@@ -75,7 +60,8 @@ namespace CSharpSnooker.WinForms
 
             InitializeComponent();
 
-            _snapShotGenerator = new SnapShotGenerator(picTable, balls, _soundManager);
+            _ballManager = new BallManager(this);
+            _snapShotGenerator = new SnapShotGenerator(picTable, _ballManager.Balls, _soundManager);
 
             lblPlayer1Name.Text = _playerManager.CurrentPlayer.Name;
             lblPlayer2Name.Text = _playerManager.OtherPlayer.Name;
@@ -85,7 +71,6 @@ namespace CSharpSnooker.WinForms
             imgShadow = Image.FromFile(@"Images\ShadowBall.PNG");
             imgQuestionBall = Image.FromFile(@"Images\questionball.PNG");
 
-            LoadBalls();
 
             pockets.Add(new Pocket(this, 1, 5, 5, 29, 29));
             pockets.Add(new Pocket(this, 2, 288, 0, 301, 25));
@@ -93,6 +78,7 @@ namespace CSharpSnooker.WinForms
             pockets.Add(new Pocket(this, 4, 5, 309, 29, 309));
             pockets.Add(new Pocket(this, 5, 288, 314, 301, 313));
             pockets.Add(new Pocket(this, 6, 571, 309, 572, 310));
+            _ballManager.Load(this);
 
             diagonalBorders.Add(new DiagonalBorder(547, 309, 35, Side.Southwest));
             diagonalBorders.Add(new DiagonalBorder(573, 286, 35, Side.Northeast));
@@ -116,13 +102,13 @@ namespace CSharpSnooker.WinForms
             tableBorders.Add(new TableBorder(this, 0, 344, 606, 20, ForcedDirection.None));
 
             lblStrenght.Width = (int)((_playerManager.CurrentPlayer.Strength * (thermometerRectangle.Width - 12) / 100.0));
-            _playerManager.CurrentPlayer.BallOn = balls[1];
+            _playerManager.CurrentPlayer.BallOn = _ballManager.Balls[1];
             SetBallOnImage();
 
             timerInBox.Enabled = _playerManager.CurrentPlayer.IsComputer;
 
             UpdatePlayerState(PlayerState.Aiming);
-            _playerManager.CurrentPlayer.BallOn = GetRandomRedBall();
+            _playerManager.CurrentPlayer.BallOn = _ballManager.GetRandomRedBall();
             _playerManager.CurrentPlayer.Strength = GetRandomStrenght();
             SetBallOnImage();
             timerComputer.Enabled = true;
@@ -140,50 +126,6 @@ namespace CSharpSnooker.WinForms
             }
         }
 
-        private void LoadBalls()
-        {
-            Image imgRedBall = Image.FromFile(@"Images\RedBall.PNG");
-            Image imgWhiteBall = Image.FromFile(@"Images\whiteball.PNG");
-            Image imgYellowBall = Image.FromFile(@"Images\YellowBall.PNG");
-            Image imgGreenBall = Image.FromFile(@"Images\GreenBall.PNG");
-            Image imgBrownBall = Image.FromFile(@"Images\BrownBall.PNG");
-            Image imgBlackBall = Image.FromFile(@"Images\BlackBall.PNG");
-            Image imgPinkBall = Image.FromFile(@"Images\PinkBall.PNG");
-            Image imgBlueBall = Image.FromFile(@"Images\BlueBall.PNG");
-
-            balls.Clear();
-            Ball ball01 = new Ball("white", this, 497, 140, imgWhiteBall, (int)BallValues.White);
-
-            Ball ball02 = new Ball("red01", this, 121, 152, imgRedBall, (int)BallValues.Red);
-            Ball ball03 = new Ball("red02", this, 121, 171, imgRedBall, 1);
-            Ball ball04 = new Ball("red03", this, 121, 190, imgRedBall, 1);
-            Ball ball05 = new Ball("red04", this, 140, 162, imgRedBall, 1);
-            Ball ball06 = new Ball("red05", this, 140, 180, imgRedBall, 1);
-            Ball ball07 = new Ball("red06", this, 159, 171, imgRedBall, 1);
-
-            Ball ball08 = new Ball("yellow", this, 469, 115, imgYellowBall, (int)BallValues.Yellow);
-            Ball ball10 = new Ball("green",  this, 469, 228, imgGreenBall, (int)BallValues.Green);
-            Ball ball09 = new Ball("brown",  this, 469, 171, imgBrownBall, (int)BallValues.Brown);
-            Ball ball13 = new Ball("blue",   this, 298, 171, imgBlueBall, (int)BallValues.Blue);
-            Ball ball12 = new Ball("pink",   this, 178, 171, imgPinkBall, (int)BallValues.Pink);
-            Ball ball11 = new Ball("black",  this,  50, 171, imgBlackBall, (int)BallValues.Black);
-
-            balls.Add(ball01);
-            balls.Add(ball02);
-            balls.Add(ball03);
-            balls.Add(ball04);
-            balls.Add(ball05);
-            balls.Add(ball06);
-            balls.Add(ball07);
-
-            balls.Add(ball08);
-            balls.Add(ball09);
-            balls.Add(ball10);
-            balls.Add(ball11);
-            balls.Add(ball12);
-            balls.Add(ball13);
-        }
-
         private void timerBallOn_Tick(object sender, EventArgs e)
         {
             if (playerState == PlayerState.Aiming || playerState == PlayerState.Calling)
@@ -196,7 +138,7 @@ namespace CSharpSnooker.WinForms
 
         private void MoveBalls(bool test)
         {
-            foreach (Ball ball in balls)
+            foreach (Ball ball in _ballManager.Balls)
             {
                 if (Math.Abs(ball.X) < 5 && Math.Abs(ball.Y) < 5 && Math.Abs(ball.TranslateVelocity.X) < 10 && Math.Abs(ball.TranslateVelocity.Y) < 10)
                 {
@@ -217,7 +159,7 @@ namespace CSharpSnooker.WinForms
                 bool someCollision = true;
                 while (someCollision)
                 {
-                    foreach (Ball ball in balls)
+                    foreach (Ball ball in _ballManager.Balls)
                     {
                         foreach (Pocket pocket in pockets)
                         {
@@ -226,7 +168,7 @@ namespace CSharpSnooker.WinForms
                     }
 
                     someCollision = false;
-                    foreach (Ball ballA in balls)
+                    foreach (Ball ballA in _ballManager.Balls)
                     {
                         if (ballA.IsBallInPocket)
                         {
@@ -254,7 +196,7 @@ namespace CSharpSnooker.WinForms
                             }
                         }
 
-                        foreach (Ball ballB in balls)
+                        foreach (Ball ballB in _ballManager.Balls)
                         {
                             if (ballA.Id.CompareTo(ballB.Id) != 0)
                             {
@@ -262,11 +204,11 @@ namespace CSharpSnooker.WinForms
                                 {
                                     if (ballA.Points == 0)
                                     {
-                                        strokenBalls.Add(ballB);
+                                        _ballManager.StrokenBalls.Add(ballB);
                                     }
                                     else if (ballB.Points == 0)
                                     {
-                                        strokenBalls.Add(ballA);
+                                        _ballManager.StrokenBalls.Add(ballA);
                                     }
 
                                     while (ballA.Colliding(ballB))
@@ -345,7 +287,7 @@ namespace CSharpSnooker.WinForms
                         }
                     }
 
-                    foreach (Ball ball in balls)
+                    foreach (Ball ball in _ballManager.Balls)
                     {
                         ball.Position.X += ball.TranslateVelocity.X + ball.VSpinVelocity.X;
                         ball.Position.Y += ball.TranslateVelocity.Y + ball.VSpinVelocity.Y;
@@ -357,7 +299,7 @@ namespace CSharpSnooker.WinForms
             }
 
             double totalVelocity = 0;
-            foreach (Ball ball in balls)
+            foreach (Ball ball in _ballManager.Balls)
             {
                 totalVelocity += ball.TranslateVelocity.X;
                 totalVelocity += ball.TranslateVelocity.Y;
@@ -449,7 +391,7 @@ namespace CSharpSnooker.WinForms
             int lostPoints = 0;
             bool someInTable = false;
 
-            foreach (Ball ball in balls)
+            foreach (Ball ball in _ballManager.Balls)
             {
                 if (!ball.IsBallInPocket)
                 {
@@ -463,7 +405,7 @@ namespace CSharpSnooker.WinForms
                 }
             }
 
-            foreach (Ball ball in balls)
+            foreach (Ball ball in _ballManager.Balls)
             {
                 if (ball.Points == 1 && ball.IsBallInPocket)
                 {
@@ -471,7 +413,7 @@ namespace CSharpSnooker.WinForms
                 }
             }
 
-            foreach (Ball ball in pottedBalls)
+            foreach (Ball ball in _ballManager.PottedBalls)
             {
                 if (ball.Points == 0)
                 {
@@ -488,7 +430,7 @@ namespace CSharpSnooker.WinForms
                     {
                         for (int points = ball.Points; points > 1; points--)
                         {
-                            Ball candidateBall = GetCandidateBall(ball, points);
+                            Ball candidateBall = _ballManager.GetCandidateBall(ball, points);
                             if (candidateBall != null)
                             {
                                 ball.ResetPositionAt(candidateBall.InitPosition.X, candidateBall.InitPosition.Y);
@@ -501,10 +443,10 @@ namespace CSharpSnooker.WinForms
             }
 
             if (_playerManager.CurrentPlayer.BallOn == null)
-                _playerManager.CurrentPlayer.BallOn = balls[1];
+                _playerManager.CurrentPlayer.BallOn = _ballManager.Balls[1];
 
             int strokenBallsCount = 0;
-            foreach (Ball ball in strokenBalls)
+            foreach (Ball ball in _ballManager.StrokenBalls)
             {
                 //causing the cue ball to first hit a ball other than the ball on
                 if (strokenBallsCount == 0 && ball.Points != _playerManager.CurrentPlayer.BallOn.Points)
@@ -517,7 +459,7 @@ namespace CSharpSnooker.WinForms
             if (strokenBallsCount == 0)
                 _playerManager.CurrentPlayer.FoulList.Add(4);
 
-            foreach (Ball ball in pottedBalls)
+            foreach (Ball ball in _ballManager.PottedBalls)
             {
                 //causing the cue ball to enter a pocket
                 if (ball.Points == 0)
@@ -530,7 +472,7 @@ namespace CSharpSnooker.WinForms
 
             if (_playerManager.CurrentPlayer.FoulList.Count == 0)
             {
-                foreach (Ball ball in pottedBalls)
+                foreach (Ball ball in _ballManager.PottedBalls)
                 {
                     //legally potting reds or colors
                     wonPoints += ball.Points;
@@ -572,12 +514,12 @@ namespace CSharpSnooker.WinForms
                     return;
                 }
 
-                int fallenBallsCount = fallenBalls.Count;
+                int fallenBallsCount = _ballManager.FallenBalls.Count;
                 for (int i = fallenBallsCount - 1; i >= 0; i--)
                 {
-                    if (!fallenBalls[i].IsBallInPocket)
+                    if (!_ballManager.FallenBalls[i].IsBallInPocket)
                     {
-                        fallenBalls.RemoveAt(i);
+                        _ballManager.FallenBalls.RemoveAt(i);
                     }
                 }
 
@@ -618,70 +560,12 @@ namespace CSharpSnooker.WinForms
                 targetVector = new Vector2D(0, 0);
             }
 
-            strokenBalls.Clear();
-            pottedBalls.Clear();
+            _ballManager.StrokenBalls.Clear();
+            _ballManager.PottedBalls.Clear();
             _soundManager.Empty();
 
             if (!_playerManager.CurrentPlayer.IsComputer)
                 timerInBox.Enabled = true;
-        }
-
-        private Ball GetMinColouredball()
-        {
-            Ball minColouredball = null;
-            int minPoints = 8;
-            foreach (Ball ball in balls)
-            {
-                if (ball.Points > 1 && ball.Points < minPoints && !ball.IsBallInPocket)
-                {
-                    minColouredball = ball;
-                    minPoints = minColouredball.Points;
-                }
-            }
-            return minColouredball;
-        }
-
-        private Ball GetCandidateBall(Ball ball, int points)
-        {
-            Ball candidateBall = null;
-            Ball fallenBall = ball;
-            while (candidateBall == null)
-            {
-                foreach (Ball b in balls)
-                {
-                    if (b.Points == points)
-                    {
-                        candidateBall = b;
-                    }
-                }
-                if (candidateBall != null)
-                {
-                    foreach (Ball collisionBall in balls)
-                    {
-                        if (!collisionBall.IsBallInPocket)
-                        {
-                            if (collisionBall.Id != candidateBall.Id)
-                            {
-                                float xd = (float)(candidateBall.InitPosition.X - collisionBall.X);
-                                float yd = (float)(candidateBall.InitPosition.Y - collisionBall.Y);
-
-                                float sumRadius = (float)(Ball.Radius * 0.5);
-                                float sqrRadius = sumRadius * sumRadius;
-
-                                float distSqr = (xd * xd) + (yd * yd);
-
-                                if (Math.Round(distSqr) < Math.Round(sqrRadius))
-                                {
-                                    candidateBall = null;
-                                    points--;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return candidateBall;
         }
 
         private void MoveBall(bool forcePaint)
@@ -699,7 +583,7 @@ namespace CSharpSnooker.WinForms
 
             bool someMoved = false;
 
-            foreach (Ball ball in balls)
+            foreach (Ball ball in _ballManager.Balls)
             {
                 if (!ball.IsBallInPocket)
                 {
@@ -714,7 +598,7 @@ namespace CSharpSnooker.WinForms
             if (someMoved || forcePaint)
             {
                 int index = 0;
-                foreach (Ball ball in balls)
+                foreach (Ball ball in _ballManager.Balls)
                 {
                     int lastX = (int)ball.LastX;
                     int X = (int)ball.X;
@@ -780,22 +664,22 @@ namespace CSharpSnooker.WinForms
             double v = 20 * (_playerManager.CurrentPlayer.Strength / 100.0);
 
             //Calculates the cue angle, and the translate velocity (normal velocity)
-            double dx = x - balls[0].X;
-            double dy = y - balls[0].Y;
+            double dx = x - _ballManager.Balls[0].X;
+            double dy = y - _ballManager.Balls[0].Y;
             double h = (double)(Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2)));
             double sin = dy / h;
             double cos = dx / h;
 
-            balls[0].IsBallInPocket = false;
-            balls[0].TranslateVelocity.X = v * cos;
-            balls[0].TranslateVelocity.Y = v * sin;
-            Vector2D normalVelocity = balls[0].TranslateVelocity.Normalize();
+            _ballManager.Balls[0].IsBallInPocket = false;
+            _ballManager.Balls[0].TranslateVelocity.X = v * cos;
+            _ballManager.Balls[0].TranslateVelocity.Y = v * sin;
+            Vector2D normalVelocity = _ballManager.Balls[0].TranslateVelocity.Normalize();
 
             //Calculates the top spin/back spin velocity, in the same direction as the normal velocity, but in opposite angle
-            double topBottomVelocityRatio = balls[0].TranslateVelocity.Lenght() * (targetVector.Y / 100.0);
-            balls[0].VSpinVelocity = new Vector2D(-1.0d * topBottomVelocityRatio * normalVelocity.X, -1.0d * topBottomVelocityRatio * normalVelocity.Y);
+            double topBottomVelocityRatio = _ballManager.Balls[0].TranslateVelocity.Lenght() * (targetVector.Y / 100.0);
+            _ballManager.Balls[0].VSpinVelocity = new Vector2D(-1.0d * topBottomVelocityRatio * normalVelocity.X, -1.0d * topBottomVelocityRatio * normalVelocity.Y);
             
-            _soundManager.Add(_snapShotGenerator.SnapShotCount, new ShotSound(balls[0]));
+            _soundManager.Add(_snapShotGenerator.SnapShotCount, new ShotSound(_ballManager.Balls[0]));
 
             //Calculates the ball positions as long as there are moving balls
             while (poolState == PoolState.Moving)
@@ -808,7 +692,7 @@ namespace CSharpSnooker.WinForms
 
         private void frmTable_Deactivate(object sender, EventArgs e)
         {
-            foreach (Ball ball in balls)
+            foreach (Ball ball in _ballManager.Balls)
             {
                 ball.IsStill = true;
             }
@@ -837,8 +721,8 @@ namespace CSharpSnooker.WinForms
         {
             _soundManager.Add(_snapShotGenerator.SnapShotCount, new FallSound(ball));
 
-            fallenBalls.Add(ball);
-            pottedBalls.Add(ball);
+            _ballManager.FallenBalls.Add(ball);
+            _ballManager.PottedBalls.Add(ball);
 
             ball.IsBallInPocket = true;
         }
@@ -856,7 +740,7 @@ namespace CSharpSnooker.WinForms
                 {
                     if (playerState == PlayerState.Calling)
                     {
-                        Ball bOn = GetBallOn(e.X, e.Y);
+                        Ball bOn = _ballManager.GetBallOn(e.X, e.Y);
                         if (bOn != null)
                         {
                             _playerManager.CurrentPlayer.BallOn = bOn;
@@ -899,7 +783,7 @@ namespace CSharpSnooker.WinForms
                 Ball bOn = null;
                 int x = e.X;
                 int y = e.Y;
-                bOn = GetBallOn(x, y);
+                bOn = _ballManager.GetBallOn(x, y);
                 if (bOn != null)
                 {
                     picTable.Cursor = Cursors.Hand;
@@ -909,31 +793,6 @@ namespace CSharpSnooker.WinForms
                     picTable.Cursor = Cursors.Arrow;
                 }
             }
-        }
-
-        private Ball GetBallOn(int x, int y)
-        {
-            Ball bOn = null;
-            foreach (Ball ball in balls)
-            {
-                if (!ball.IsBallInPocket && ball.Points > 1)
-                {
-                    float xd = (float)(x - ball.X);
-                    float yd = (float)(y - ball.Y);
-
-                    float sumRadius = (float)(Ball.Radius);
-                    float sqrRadius = sumRadius * sumRadius;
-
-                    float distSqr = (xd * xd) + (yd * yd);
-
-                    if (Math.Round(distSqr) < Math.Round(sqrRadius))
-                    {
-                        bOn = ball;
-                        break;
-                    }
-                }
-            }
-            return bOn;
         }
 
         private bool SetStrength(int x, int y)
@@ -1057,7 +916,7 @@ namespace CSharpSnooker.WinForms
             List<Ball> auxBalls = new List<Ball>();
 
             auxBalls.Clear();
-            foreach (Ball b in balls)
+            foreach (Ball b in _ballManager.Balls)
             {
                 Ball auxBall = new Ball(b.Id, this, (int)b.Position.X, (int)b.Position.Y, b.Image, b.Points);
                 auxBall.IsBallInPocket = b.IsBallInPocket;
@@ -1098,7 +957,7 @@ namespace CSharpSnooker.WinForms
                 newOpponentScore = _playerManager.OtherPlayer.Points;
 
                 int i = 0;
-                foreach (Ball b in balls)
+                foreach (Ball b in _ballManager.Balls)
                 {
                     Ball auxB = auxBalls[i];
                     b.Position.X = auxB.Position.X;
@@ -1130,18 +989,18 @@ namespace CSharpSnooker.WinForms
 
             if (_playerManager.CurrentPlayer.BallOn == null)
             {
-                ballOnList = GetValidRedBalls();
+                ballOnList = _ballManager.GetValidRedBalls();
             }
             else if (_playerManager.CurrentPlayer.BallOn.Points == 1)
             {
-                ballOnList = GetValidRedBalls();
+                ballOnList = _ballManager.GetValidRedBalls();
             }
             else
             {
-                Ball redBall = GetRandomRedBall();
+                Ball redBall = _ballManager.GetRandomRedBall();
                 if (redBall != null)
                 {
-                    foreach (Ball b in balls)
+                    foreach (Ball b in _ballManager.Balls)
                     {
                         if (b.Points > 1 && !b.IsBallInPocket)
                             ballOnList.Add(b);
@@ -1207,45 +1066,45 @@ namespace CSharpSnooker.WinForms
                 {
                     if (_playerManager.CurrentPlayer.BallOn == null)
                     {
-                        nextBallOn = GetRandomRedBall();
+                        nextBallOn = _ballManager.GetRandomRedBall();
                     }
                     else if (_playerManager.CurrentPlayer.JustSwapped)
                     {
-                        nextBallOn = GetRandomRedBall();
+                        nextBallOn = _ballManager.GetRandomRedBall();
                     }
                     else if (_playerManager.CurrentPlayer.BallOn.Points == 1)
                     {
-                        nextBallOn = GetRandomRedBall();
+                        nextBallOn = _ballManager.GetRandomRedBall();
                     }
 
                     if (nextBallOn == null)
                     {
-                        nextBallOn = GetMinColouredball();
+                        nextBallOn = _ballManager.GetMinColouredball();
                     }
                 }
                 else
                 {
                     if (lastBallOn == null)
                     {
-                        nextBallOn = GetRandomRedBall();
+                        nextBallOn = _ballManager.GetRandomRedBall();
                     }
                     else if (lastBallOn.Points == 1)
                     {
-                        nextBallOn = GetMinColouredball();
+                        nextBallOn = _ballManager.GetMinColouredball();
                     }
                     else
                     {
-                        nextBallOn = GetRandomRedBall();
+                        nextBallOn = _ballManager.GetRandomRedBall();
                         if (nextBallOn == null)
                         {
-                            nextBallOn = GetMinColouredball();
+                            nextBallOn = _ballManager.GetMinColouredball();
                         }
                     }
                 }
             }
             else
             {
-                nextBallOn = GetMinColouredball();
+                nextBallOn = _ballManager.GetMinColouredball();
             }
             return nextBallOn;
         }
@@ -1327,13 +1186,13 @@ namespace CSharpSnooker.WinForms
                 //ghost ball coordinates
                 double gX = ballOn.X - dxBallOnGhost;
                 double gY = ballOn.Y - dyBallOnGhost;
-                double dxGhostCue = balls[0].X - gX;
-                double dyGhostCue = balls[0].Y - gY;
+                double dxGhostCue = _ballManager.Balls[0].X - gX;
+                double dyGhostCue = _ballManager.Balls[0].Y - gY;
                 double hGhostCue = Math.Sqrt(dxGhostCue * dxGhostCue + dyGhostCue * dyGhostCue);
 
                 //distances between ball on center and cue ball center
-                double dxBallOnCueBall = ballOn.X - balls[0].X;
-                double dyBallOnCueBall = ballOn.Y - balls[0].Y;
+                double dxBallOnCueBall = ballOn.X - _ballManager.Balls[0].X;
+                double dyBallOnCueBall = ballOn.Y - _ballManager.Balls[0].Y;
                 double hBallOnCueBall = Math.Sqrt(dxBallOnCueBall * dxBallOnCueBall + dyBallOnCueBall * dyBallOnCueBall);
 
                 //discards difficult ghost balls
@@ -1346,47 +1205,6 @@ namespace CSharpSnooker.WinForms
             }
 
             return ghostBalls;
-        }
-
-        private Ball GetRandomRedBall()
-        {
-            Ball redBallOn = null;
-
-            List<int> validRedBalls = new List<int>();
-            int i = 0;
-            foreach (Ball ball in balls)
-            {
-                if (ball.Points == 1 && !ball.IsBallInPocket)
-                {
-                    validRedBalls.Add(i);
-                }
-                i++;
-            }
-
-            int redCount = validRedBalls.Count;
-
-            if (redCount > 0)
-            {
-                Random rnd = new Random(DateTime.Now.Second);
-                int index = rnd.Next(redCount);
-
-                redBallOn = balls[validRedBalls[index]];
-            }
-            return redBallOn;
-        }
-
-        private List<Ball> GetValidRedBalls()
-        {
-            List<Ball> validRedBalls = new List<Ball>();
-
-            foreach (Ball ball in balls)
-            {
-                if (ball.Points == 1 && !ball.IsBallInPocket)
-                {
-                    validRedBalls.Add(ball);
-                }
-            }
-            return validRedBalls;
         }
 
         private int GetRandomStrenght()
@@ -1417,7 +1235,7 @@ namespace CSharpSnooker.WinForms
             picTable.Update();
 
             ClearFramesAndSounds();
-            LoadBalls();
+            _ballManager.Load(this);
 
             for (int i = 0; i < 20; i++)
             {
@@ -1436,7 +1254,7 @@ namespace CSharpSnooker.WinForms
             _playerManager.EndMatch();
 
             lblWin.Visible = false;
-            picBallOn.Image = balls[1].Image;
+            picBallOn.Image = _ballManager.Balls[1].Image;
             SetBallOnImage();
         }
     }
