@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using CSharpSnooker.WinForms.Components;
+using CSharpSnooker.WinForms.Models.Events;
 using CSharpSnookerCore.Models;
 using CSharpSnookerCore.Models.Sounds;
 
@@ -23,12 +24,13 @@ namespace CSharpSnooker.WinForms
         GameOver
     }
 
-    public partial class MainForm : Form, IBallObserver, IPocketObserver, IBorderObserver
+    public partial class MainForm : Form, IBallObserver, IBorderObserver
     {
         private readonly PlayerManager _playerManager;
         private readonly SoundManager _soundManager;
         private readonly SnapShotGenerator _snapShotGenerator;
         private readonly BallManager _ballManager;
+        private readonly PocketManager _pocketManager;
 
 
         bool showBallOn = true;
@@ -41,7 +43,6 @@ namespace CSharpSnooker.WinForms
 
         PoolState poolState = PoolState.AwaitingShot;
         Single friction = 0.0075F;
-        List<Pocket> pockets = new List<Pocket>();
         List<TableBorder> tableBorders = new List<TableBorder>();
         List<DiagonalBorder> diagonalBorders = new List<DiagonalBorder>();
         
@@ -62,6 +63,8 @@ namespace CSharpSnooker.WinForms
 
             _ballManager = new BallManager(this);
             _snapShotGenerator = new SnapShotGenerator(picTable, _ballManager.Balls, _soundManager);
+            _pocketManager = new PocketManager(this);
+            _pocketManager.OnPotting += OnBallPotting;
 
             lblPlayer1Name.Text = _playerManager.CurrentPlayer.Name;
             lblPlayer2Name.Text = _playerManager.OtherPlayer.Name;
@@ -71,13 +74,6 @@ namespace CSharpSnooker.WinForms
             imgShadow = Image.FromFile(@"Images\ShadowBall.PNG");
             imgQuestionBall = Image.FromFile(@"Images\questionball.PNG");
 
-
-            pockets.Add(new Pocket(this, 1, 5, 5, 29, 29));
-            pockets.Add(new Pocket(this, 2, 288, 0, 301, 25));
-            pockets.Add(new Pocket(this, 3, 571, 5, 573, 29));
-            pockets.Add(new Pocket(this, 4, 5, 309, 29, 309));
-            pockets.Add(new Pocket(this, 5, 288, 314, 301, 313));
-            pockets.Add(new Pocket(this, 6, 571, 309, 572, 310));
             _ballManager.Load(this);
 
             diagonalBorders.Add(new DiagonalBorder(547, 309, 35, Side.Southwest));
@@ -115,6 +111,14 @@ namespace CSharpSnooker.WinForms
         }
 
 
+
+        private void OnBallPotting(BallPottedEventArgs e)
+        {
+            _soundManager.Add(_snapShotGenerator.SnapShotCount, new FallSound(e.Ball));
+
+            _ballManager.FallenBalls.Add(e.Ball);
+            _ballManager.PottedBalls.Add(e.Ball);
+        }
 
         private void ClearFramesAndSounds()
         {
@@ -161,9 +165,9 @@ namespace CSharpSnooker.WinForms
                 {
                     foreach (Ball ball in _ballManager.Balls)
                     {
-                        foreach (Pocket pocket in pockets)
+                        foreach (Pocket pocket in _pocketManager.Pockets)
                         {
-                            bool inPocket = pocket.IsBallInPocket(ball);
+                            _pocketManager.DetectPotting(ball, pocket);
                         }
                     }
 
@@ -375,7 +379,7 @@ namespace CSharpSnooker.WinForms
                 tableGraphics.DrawRectangle(new Pen(Brushes.White), tableBorder.X, tableBorder.Y, tableBorder.Width, tableBorder.Height);
             }
 
-            foreach (Pocket pocket in pockets)
+            foreach (Pocket pocket in _pocketManager.Pockets)
             {
                 tableGraphics.DrawEllipse(new Pen(Brushes.White), pocket.X - (int)Ball.Radius, pocket.Y - (int)Ball.Radius, (int)Ball.Radius * 2, (int)Ball.Radius * 2);
             }
@@ -715,16 +719,6 @@ namespace CSharpSnooker.WinForms
         public void Hit(string volume, Ball ball)
         {
             _soundManager.Add(_snapShotGenerator.SnapShotCount, new HitSound(volume, ball));
-        }
-
-        public void BallDropped(Ball ball)
-        {
-            _soundManager.Add(_snapShotGenerator.SnapShotCount, new FallSound(ball));
-
-            _ballManager.FallenBalls.Add(ball);
-            _ballManager.PottedBalls.Add(ball);
-
-            ball.IsBallInPocket = true;
         }
 
         public void WallCollision(Ball ball)
@@ -1170,7 +1164,7 @@ namespace CSharpSnooker.WinForms
             List<Ball> ghostBalls = new List<Ball>();
 
             int i = 0;
-            foreach (Pocket pocket in pockets)
+            foreach (Pocket pocket in _pocketManager.Pockets)
             {
                 //distances between pocket and ball on center
                 double dxPocketBallOn = pocket.HotSpotX - ballOn.X;
