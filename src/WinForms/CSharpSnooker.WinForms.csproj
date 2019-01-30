@@ -68,7 +68,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="GifHelper.cs" />
+    <Compile Include="GifCreator.cs" />
     <Compile Include="Models\Ball.cs" />
     <Compile Include="Models\BallPosition.cs" />
     <Compile Include="Models\DiagonalBorder.cs" />
@@ -126,9 +126,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\whiteball.PNG">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Snapshots\000.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Sounds\Bank.wav">
