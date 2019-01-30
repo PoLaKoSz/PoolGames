@@ -77,6 +77,7 @@ namespace CSharpSnooker.WinForms.Components
             {
                 Bitmap bmp = new Bitmap(_tableIMG);
 
+                _whiteBitmapList[i].Dispose();
                 _whiteBitmapList[i] = bmp;
             }
 
