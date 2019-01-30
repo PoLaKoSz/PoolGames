@@ -56,6 +56,8 @@
     <Compile Include="Components\PlayerManger.cs" />
     <Compile Include="Components\PlayerViewModel.cs" />
     <Compile Include="Components\PocketManager.cs" />
+    <Compile Include="Components\PoolTypes\IPoolType.cs" />
+    <Compile Include="Components\PoolTypes\SnookerPool.cs" />
     <Compile Include="Components\Simulator.cs" />
     <Compile Include="Components\SnapShotGenerator.cs" />
     <Compile Include="Components\SoundManager.cs" />

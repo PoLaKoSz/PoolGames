@@ -218,8 +218,6 @@ namespace CSharpSnooker.WinForms
 
             picTable.Update();
 
-            BallManager.Load();
-
             for (int i = 0; i < 20; i++)
             {
                 lblWin.Visible = false;

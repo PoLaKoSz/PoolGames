@@ -1,4 +1,5 @@
-﻿using CSharpSnooker.WinForms.Models.Events;
+﻿using CSharpSnooker.WinForms.Components.PoolTypes;
+using CSharpSnooker.WinForms.Models.Events;
 using CSharpSnookerCore.Models;
 using CSharpSnookerCore.Models.Sounds;
 using System;
@@ -24,6 +25,7 @@ namespace CSharpSnooker.WinForms.Components
         private readonly BorderManager _borderManager;
         private readonly Simulator _simulator;
         private readonly CollisionManager _collisionManager;
+        private readonly IPoolType _poolType;
 
 
 
@@ -31,18 +33,19 @@ namespace CSharpSnooker.WinForms.Components
         {
             _soundManager = new SoundManager();
 
+            _poolType = new SnookerPool();
+
             _ballManager = new BallManager();
-            _ballManager.Load();
+            _ballManager.Load(_poolType.Balls);
 
             _pocketManager = new PocketManager();
             _pocketManager.OnPotting += OnBallPotting;
 
             _playerManager = new PlayerManager(
-                new ComputerViewModel(new Player(1, "Computer", isComputer: true)
-                {
-                    BallOn = _ballManager.GetRandomRedBall()
-                }, _ballManager, _pocketManager),
+                new ComputerViewModel(new Player(1, "Computer", isComputer: true), _ballManager, _pocketManager),
                 new PlayerViewModel(new Player(2, "Human")));
+
+            _poolType.InitBallOn(_playerManager);
 
             View = new MainForm(this, _playerManager)
             {
@@ -68,8 +71,6 @@ namespace CSharpSnooker.WinForms.Components
             }
             _snapShotGenerator.NextFrame();
             _snapShotGenerator.PlayLastShot();
-
-            _playerManager.CurrentPlayer.BallOn = _ballManager.GetRandomRedBall();
 
             SetBallOnImage();
         }
@@ -132,7 +133,21 @@ namespace CSharpSnooker.WinForms.Components
 
             _snapShotGenerator.PlayLastShot();
 
-            ProcessFallenBalls();
+            _poolType.ProcessFallenBalls(_ballManager, _playerManager);
+
+            if (_poolType.HasWinner)
+            {
+                View.ShowWinner();
+                return;
+            }
+
+            View.ResetCueBallSpinIndicator();
+
+            _soundManager.Empty();
+
+            RefreshTable();
+
+            ShowPoints();
 
             SetBallOnImage();
 
@@ -167,192 +182,6 @@ namespace CSharpSnooker.WinForms.Components
             _ballManager.CueBall.VSpinVelocity = new Vector2D(-1.0d * topBottomVelocityRatio * normalVelocity.X, -1.0d * topBottomVelocityRatio * normalVelocity.Y);
 
             _playerManager.CurrentPlayer.ShotCount++;
-        }
-
-        private void ProcessFallenBalls()
-        {
-            _playerManager.CurrentPlayer.FoulList.Clear();
-
-            int redCount = 0;
-            int fallenRedCount = 0;
-            int availableRedCount = 0;
-            int wonPoints = 0;
-            int lostPoints = 0;
-            bool someInTable = false;
-
-            foreach (Ball ball in _ballManager.Balls)
-            {
-                if (!ball.IsInPocket)
-                {
-                    if (ball.Points > 0)
-                    {
-                        someInTable = true;
-                    }
-                }
-
-                if (ball.Points == 1)
-                {
-                    redCount++;
-                }
-
-                if (ball.Points == 1 && ball.IsInPocket)
-                {
-                    fallenRedCount++;
-                }
-            }
-
-            availableRedCount = redCount - fallenRedCount;
-
-            foreach (Ball ball in _ballManager.PottedBalls)
-            {
-                if (ball.Points == 0)
-                {
-                    ball.ResetPositionAt(ball.InitPosition.X, ball.InitPosition.Y);
-                    ball.IsInPocket = false;
-                }
-                else if (ball.Points > 1)
-                {
-                    int ballOnPoints = 1;
-                    if (_playerManager.CurrentPlayer.BallOn != null)
-                    {
-                        ballOnPoints = _playerManager.CurrentPlayer.BallOn.Points;
-                    }
-
-                    if (fallenRedCount < redCount || ballOnPoints != ball.Points)
-                    {
-                        for (int points = ball.Points; points > 1; points--)
-                        {
-                            Ball candidateBall = _ballManager.GetCandidateBall(ball, points);
-                            if (candidateBall != null)
-                            {
-                                ball.ResetPositionAt(candidateBall.InitPosition.X, candidateBall.InitPosition.Y);
-                                ball.IsInPocket = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            int strokenBallsCount = 0;
-
-            foreach (Ball ball in _ballManager.StrokenBalls)
-            {
-                // Causing the cue ball to first hit a ball other than the ball on
-                if (strokenBallsCount == 0 && ball.Points != _playerManager.CurrentPlayer.BallOn.Points)
-                {
-                    _playerManager.CurrentPlayer.FoulList.Add((_playerManager.CurrentPlayer.BallOn.Points < 4 ? 4 : _playerManager.CurrentPlayer.BallOn.Points));
-                }
-
-                strokenBallsCount++;
-            }
-
-            // Foul: causing the cue ball to miss all object balls
-            if (strokenBallsCount == 0)
-            {
-                _playerManager.CurrentPlayer.FoulList.Add(4);
-            }
-
-            foreach (Ball ball in _ballManager.PottedBalls)
-            {
-                // Causing the cue ball to enter a pocket
-                if (ball.Points == 0)
-                {
-                    _playerManager.CurrentPlayer.FoulList.Add(4);
-                }
-
-                // Causing: this is not the BallOn in the Pocket
-                if (ball.Points != _playerManager.CurrentPlayer.BallOn.Points)
-                {
-                    _playerManager.CurrentPlayer.FoulList.Add(_playerManager.CurrentPlayer.BallOn.Points < 4 ? 4 : _playerManager.CurrentPlayer.BallOn.Points);
-                }
-            }
-
-            if (_playerManager.CurrentPlayer.FoulList.Count == 0)
-            {
-                foreach (Ball ball in _ballManager.PottedBalls)
-                {
-                    // Legally potting reds or colors
-                    wonPoints += ball.Points;
-                }
-            }
-            else
-            {
-                _playerManager.CurrentPlayer.FoulList.Sort();
-                lostPoints = _playerManager.CurrentPlayer.FoulList[_playerManager.CurrentPlayer.FoulList.Count - 1];
-            }
-
-            if (wonPoints == 0 || lostPoints > 0)
-            {
-                ChooseNextBallOn(availableRedCount, isLostBreak: true);
-
-                _playerManager.CurrentPlayer.Points -= lostPoints;
-                _playerManager.OtherPlayer.Points += lostPoints;
-
-                _playerManager.Switch();
-            }
-            else
-            {
-                ChooseNextBallOn(availableRedCount, isLostBreak: false);
-
-                _playerManager.CurrentPlayer.Points += wonPoints;
-            }
-
-            if (!someInTable)
-            {
-                throw new NotImplementedException("Somebody won!");
-            }
-
-            int fallenBallsCount = _ballManager.FallenBalls.Count;
-            for (int i = fallenBallsCount - 1; i >= 0; i--)
-            {
-                if (!_ballManager.FallenBalls[i].IsInPocket)
-                {
-                    _ballManager.FallenBalls.RemoveAt(i);
-                }
-            }
-
-            View.ResetCueBallSpinIndicator();
-
-            _ballManager.StrokenBalls.Clear();
-            _ballManager.PottedBalls.Clear();
-            _soundManager.Empty();
-
-            RefreshTable();
-
-            ShowPoints();
-        }
-
-        private void ChooseNextBallOn(int availableRedCount, bool isLostBreak)
-        {
-            // Ha van még piros labra
-            //      - és az előző BallOn nem piros volt
-            //      - és az előző BallOn piros volt
-            // Ha nincs piros labda, akkor a legkisebb színes
-
-            if (isLostBreak && 0 < availableRedCount)
-            {
-                _playerManager.CurrentPlayer.BallOn = _ballManager.GetRandomRedBall();
-            }
-            else if (isLostBreak && 0 == availableRedCount)
-            {
-                _playerManager.CurrentPlayer.BallOn = _ballManager.GetMinColouredball();
-            }
-            else if (0 < availableRedCount && _playerManager.CurrentPlayer.BallOn.Points != 1)
-            {
-                _playerManager.CurrentPlayer.BallOn = _ballManager.GetRandomRedBall();
-            }
-            else if (0 < availableRedCount && _playerManager.CurrentPlayer.BallOn.Points == 1)
-            {
-                if (!_playerManager.CurrentPlayer.IsComputer)
-                    _playerManager.CurrentPlayer.BallOn = null;
-                else
-                    _playerManager.CurrentPlayer.BallOn = _ballManager.GetMinColouredball();
-            }
-            else if (0 == availableRedCount)
-            {
-                _playerManager.CurrentPlayer.BallOn = _ballManager.GetMinColouredball();
-            }
         }
 
         private void RefreshTable()
