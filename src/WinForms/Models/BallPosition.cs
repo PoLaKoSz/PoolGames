@@ -1,20 +1,20 @@
-using System;
+using System.Drawing;
 
 namespace CSharpSnookerCore.Models
 {
     public class BallPosition
     {
-        public int SnapShot { get; set; }
-        public int BallIndex { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
+        public int SnapShot { get; }
+        public int X { get; }
+        public int Y { get; }
+        public Image Image { get; }
 
 
 
-        public BallPosition(int snapShot, int ballIndex, int x, int y)
+        public BallPosition(int snapShot, Image image, int x, int y)
         {
             SnapShot = snapShot;
-            BallIndex = ballIndex;
+            Image = image;
             X = x;
             Y = y;
         }

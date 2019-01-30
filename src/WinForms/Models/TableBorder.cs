@@ -68,51 +68,6 @@ namespace CSharpSnookerCore.Models
                         ball.TranslateVelocity.X = ball.TranslateVelocity.Y * -0.5d;
                         break;
                 }
-
-                return;
-                // get the mtd
-                Vector2D delta = (position.Subtract(ball.Position));
-                float d = delta.Lenght();
-                // minimum translation distance to push balls apart after intersecting
-                Vector2D mtd = delta.Multiply((float)(((this.Width * 2) - d) / d));
-
-                // resolve intersection --
-                // inverse mass quantities
-                float im1 = 0.5f;
-                float im2 = 0.5f;
-
-                // push-pull them apart based off their mass
-                ball.Position = ball.Position.Subtract(mtd.Multiply(im2 / (im1 + im2)));
-
-                // impact speed
-                Vector2D v = ball.TranslateVelocity.Multiply(-1.0d);
-                float vn = v.Dot(mtd.Normalize());
-                //float vn = 1;
-
-                // sphere intersecting but moving away from each other already
-                if (vn > 0.0f)
-                    return;
-
-                // collision impulse
-                float i = Math.Abs((float)((-(1.0f + 0.1) * vn) / (im1 + im2)));
-                Vector2D impulse = mtd.Multiply(1);
-
-                switch (this.Direction)
-                {
-                    case ForcedDirection.Up:
-                        ball.TranslateVelocity = ball.TranslateVelocity.Add(new Vector2D((double)0, (double)vn));
-                        break;
-                    case ForcedDirection.Down:
-                        ball.TranslateVelocity = ball.TranslateVelocity.Subtract(new Vector2D((double)0, (double)vn));
-
-                        break;
-                    case ForcedDirection.Left:
-                        ball.TranslateVelocity = ball.TranslateVelocity.Subtract(new Vector2D((double)vn, (double)0));
-                        break;
-                    case ForcedDirection.Right:
-                        ball.TranslateVelocity = ball.TranslateVelocity.Add(new Vector2D((double)vn, (double)0));
-                        break;
-                }
             }
         }
 

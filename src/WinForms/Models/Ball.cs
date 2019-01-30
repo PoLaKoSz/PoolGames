@@ -1,14 +1,13 @@
 using System;
-using System.ComponentModel;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace CSharpSnookerCore.Models
 {
-    [Serializable]
     public class Ball
     {
-        public static double Radius = 8;
-        public static int CosBall45;
+        public static readonly double Radius;
+        public static readonly int CosBall45;
         bool isStill = true;
         string id;
         Vector2D initPosition = new Vector2D(0, 0);
@@ -21,18 +20,21 @@ namespace CSharpSnookerCore.Models
         Vector2D translateVelocity = new Vector2D(0, 0);
         Vector2D vSpinVelocity = new Vector2D(0, 0);
         Vector2D hSpinVelocity = new Vector2D(0, 0);
-        private readonly IBallObserver _observer;
         Image image;
         int points;
         bool isBallInPocket = false;
 
 
 
-        public Ball(string id, IBallObserver observer, int x, int y, Image image, int points)
+        static Ball()
         {
-            CosBall45 = (int)(Math.Cos(Math.PI / 4) * Ball.Radius);
+            Radius = 8;
+            CosBall45 = (int)(Math.Cos(Math.PI / 4) * Radius);
+        }
+
+        public Ball(string id, int x, int y, Image image, int points)
+        {
             this.id = id;
-            this._observer = observer;
             width = 32;
             height = 32;
             this.initPosition = new Vector2D(x, y);
@@ -52,7 +54,7 @@ namespace CSharpSnookerCore.Models
             set { id = value; }
         }
 
-        public bool IsBallInPocket
+        public bool IsInPocket
         {
             get { return isBallInPocket; }
             set {
@@ -183,7 +185,6 @@ namespace CSharpSnookerCore.Models
             lastY = position.Y;
         }
 
-
         public void ResetPositionAt(double x, double y)
         {
             translateVelocity = new Vector2D(0, 0);
@@ -204,76 +205,6 @@ namespace CSharpSnookerCore.Models
             isStill = false;
         }
 
-        public bool Colliding(Ball ball)
-        {
-            if (!ball.isBallInPocket && !isBallInPocket)
-            {
-                float xd = (float)(position.X - ball.X);
-                float yd = (float)(position.Y - ball.Y);
-
-                float sumRadius = (float)((Ball.Radius + 1.0) * 2);
-                float sqrRadius = sumRadius * sumRadius;
-
-                float distSqr = (xd * xd) + (yd * yd);
-
-                if (Math.Round(distSqr) < Math.Round(sqrRadius))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public void ResolveCollision(Ball ball)
-        {
-            // get the mtd
-            Vector2D delta = (position.Subtract(ball.position));
-            float d = delta.Lenght();
-            // minimum translation distance to push balls apart after intersecting
-            Vector2D mtd = delta.Multiply((float)(((Ball.Radius + 1.0 + Ball.Radius + 1.0) - d) / d));
-
-            // resolve intersection --
-            // inverse mass quantities
-            float im1 = 1f;
-            float im2 = 1f;
-
-            // push-pull them apart based off their mass
-            position = position.Add((mtd.Multiply(im1 / (im1 + im2))));
-            ball.position = ball.position.Subtract(mtd.Multiply(im2 / (im1 + im2)));
-
-            // impact speed
-            Vector2D v = (this.translateVelocity.Subtract(ball.translateVelocity));
-            float vn = v.Dot(mtd.Normalize());
-
-            // sphere intersecting but moving away from each other already
-            if (vn > 0.0f)
-                return;
-
-            // collision impulse
-            float i = Math.Abs((float)((-(1.0f + 0.1) * vn) / (im1 + im2)));
-            Vector2D impulse = mtd.Multiply(1);
-
-            int hitSoundIntensity = (int)(Math.Abs(impulse.X) + Math.Abs(impulse.Y));
-
-            if (hitSoundIntensity > 5)
-                hitSoundIntensity = 5;
-
-            if (hitSoundIntensity < 1)
-                hitSoundIntensity = 1;
-
-            _observer.Hit(hitSoundIntensity.ToString("00"), ball);
-
-            // change in momentum
-            this.translateVelocity = this.translateVelocity.Add(impulse.Multiply(im1));
-            ball.translateVelocity = ball.translateVelocity.Subtract(impulse.Multiply(im2));
-        }
-
-        private void wavPlayer_LoadCompleted(object sender, AsyncCompletedEventArgs e)
-        {
-            ((System.Media.SoundPlayer)sender).Play();
-        }
-
         public override string ToString()
         {
             return string.Format("Ball({0}, {1})", (int)position.X, (int)position.Y);
@@ -282,6 +213,45 @@ namespace CSharpSnookerCore.Models
         public override bool Equals(object obj)
         {
             return ((Ball)obj).id.Equals(id);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1651333200;
+            hashCode = hashCode * -1521134295 + isStill.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(id);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(initPosition);
+            hashCode = hashCode * -1521134295 + lastX.GetHashCode();
+            hashCode = hashCode * -1521134295 + lastY.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(position);
+            hashCode = hashCode * -1521134295 + width.GetHashCode();
+            hashCode = hashCode * -1521134295 + height.GetHashCode();
+            hashCode = hashCode * -1521134295 + rad.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(translateVelocity);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(vSpinVelocity);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(hSpinVelocity);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Image>.Default.GetHashCode(image);
+            hashCode = hashCode * -1521134295 + points.GetHashCode();
+            hashCode = hashCode * -1521134295 + isBallInPocket.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Id);
+            hashCode = hashCode * -1521134295 + IsInPocket.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Image>.Default.GetHashCode(Image);
+            hashCode = hashCode * -1521134295 + Points.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(Position);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(InitPosition);
+            hashCode = hashCode * -1521134295 + X.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y.GetHashCode();
+            hashCode = hashCode * -1521134295 + LastX.GetHashCode();
+            hashCode = hashCode * -1521134295 + LastY.GetHashCode();
+            hashCode = hashCode * -1521134295 + Width.GetHashCode();
+            hashCode = hashCode * -1521134295 + Height.GetHashCode();
+            hashCode = hashCode * -1521134295 + Rad.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(Velocity);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(TranslateVelocity);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(VSpinVelocity);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector2D>.Default.GetHashCode(HSpinVelocity);
+            hashCode = hashCode * -1521134295 + IsStill.GetHashCode();
+            return hashCode;
         }
     }
 }

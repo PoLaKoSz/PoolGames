@@ -57,7 +57,7 @@ namespace CSharpSnooker.WinForms.Components
         {
             RectangleCollision collision = RectangleCollision.None;
 
-            if (!ball.IsBallInPocket)
+            if (!ball.IsInPocket)
             {
                 if (tableBorder.X < 288 && (ball.X - Ball.Radius < tableBorder.X + tableBorder.Width) && (ball.Y >= tableBorder.Y && ball.Y <= tableBorder.Y + tableBorder.Height) && (ball.TranslateVelocity.X + ball.VSpinVelocity.X < 0.0d) && (ball.LastX > tableBorder.X + tableBorder.Width))
                 {
@@ -91,7 +91,7 @@ namespace CSharpSnooker.WinForms.Components
             int baseX = diagonalBorder.X1;
             int baseY = diagonalBorder.Y1 - diagonalBorder.Width;
 
-            if (!ball.IsBallInPocket)
+            if (!ball.IsInPocket)
             {
                 if (diagonalBorder.Side == Side.Southeast)
                 {

@@ -1,3 +1,4 @@
+using CSharpSnooker.WinForms.Components;
 using System;
 using System.Windows.Forms;
 
@@ -10,7 +11,10 @@ namespace CSharpSnooker.WinForms
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+
+            GameEngine ge = new GameEngine();
+
+            Application.Run(ge.View);
         }
     }
 }

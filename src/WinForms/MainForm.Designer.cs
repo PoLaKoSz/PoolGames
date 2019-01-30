@@ -39,7 +39,6 @@ namespace CSharpSnooker.WinForms
             this.lblStrenght = new System.Windows.Forms.Label();
             this.lblTarget = new System.Windows.Forms.Label();
             this.picBallOn = new System.Windows.Forms.PictureBox();
-            this.timerComputer = new System.Windows.Forms.Timer(this.components);
             this.timerSplash = new System.Windows.Forms.Timer(this.components);
             this.lblCSharpSnooker = new System.Windows.Forms.Label();
             this.lblWin = new System.Windows.Forms.Label();
@@ -51,30 +50,30 @@ namespace CSharpSnooker.WinForms
             // 
             this.timerBallOn.Enabled = true;
             this.timerBallOn.Interval = 500;
-            this.timerBallOn.Tick += new System.EventHandler(this.timerBallOn_Tick);
+            this.timerBallOn.Tick += new System.EventHandler(this.BallOnTimer_Tick);
             // 
             // timerInBox
             // 
             this.timerInBox.Enabled = true;
             // 
-            // lblPlayerName1
+            // lblPlayer1Name
             // 
             this.lblPlayer1Name.BackColor = System.Drawing.Color.Transparent;
             this.lblPlayer1Name.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblPlayer1Name.ForeColor = System.Drawing.Color.Black;
             this.lblPlayer1Name.Location = new System.Drawing.Point(60, 94);
-            this.lblPlayer1Name.Name = "lblPlayerName1";
+            this.lblPlayer1Name.Name = "lblPlayer1Name";
             this.lblPlayer1Name.Size = new System.Drawing.Size(75, 21);
             this.lblPlayer1Name.TabIndex = 3;
             this.lblPlayer1Name.Text = "lblPlayerName1";
             // 
-            // rbt2Player
+            // lblPlayer2Name
             // 
             this.lblPlayer2Name.BackColor = System.Drawing.Color.Transparent;
             this.lblPlayer2Name.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblPlayer2Name.ForeColor = System.Drawing.Color.Black;
             this.lblPlayer2Name.Location = new System.Drawing.Point(60, 150);
-            this.lblPlayer2Name.Name = "rbt2Player";
+            this.lblPlayer2Name.Name = "lblPlayer2Name";
             this.lblPlayer2Name.Size = new System.Drawing.Size(75, 18);
             this.lblPlayer2Name.TabIndex = 5;
             this.lblPlayer2Name.Text = "lblPlayerName2";
@@ -89,8 +88,8 @@ namespace CSharpSnooker.WinForms
             this.picTable.Size = new System.Drawing.Size(603, 342);
             this.picTable.TabIndex = 1;
             this.picTable.TabStop = false;
-            this.picTable.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picTable_MouseMove);
-            this.picTable.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picTable_MouseUp);
+            this.picTable.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PoolTable_MouseMove);
+            this.picTable.MouseUp += new System.Windows.Forms.MouseEventHandler(this.PoolTable_MouseUp);
             // 
             // lblPlayer1
             // 
@@ -147,11 +146,6 @@ namespace CSharpSnooker.WinForms
             this.picBallOn.TabStop = false;
             this.picBallOn.Visible = false;
             // 
-            // timerComputer
-            // 
-            this.timerComputer.Interval = 1000;
-            this.timerComputer.Tick += new System.EventHandler(this.timerComputer_Tick);
-            // 
             // lblCSharpSnooker
             // 
             this.lblCSharpSnooker.AutoSize = true;
@@ -178,7 +172,7 @@ namespace CSharpSnooker.WinForms
             this.lblWin.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lblWin.Visible = false;
             // 
-            // frmTable
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -200,11 +194,11 @@ namespace CSharpSnooker.WinForms
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "frmTable";
+            this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "C# Snooker";
-            this.Deactivate += new System.EventHandler(this.frmTable_Deactivate);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.frmTable_MouseDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.frmTable_MouseMove);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Window_MouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Window_MouseMove);
             ((System.ComponentModel.ISupportInitialize)(this.picTable)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picBallOn)).EndInit();
             this.ResumeLayout(false);
@@ -218,13 +212,12 @@ namespace CSharpSnooker.WinForms
         private System.Windows.Forms.Timer timerInBox;
         private System.Windows.Forms.Label lblPlayer1Name;
         private System.Windows.Forms.Label lblPlayer2Name;
-        private System.Windows.Forms.PictureBox picTable;
+        public System.Windows.Forms.PictureBox picTable;
         private System.Windows.Forms.Label lblPlayer1;
         private System.Windows.Forms.Label lblPlayer2;
         private System.Windows.Forms.Label lblStrenght;
         private System.Windows.Forms.Label lblTarget;
         private System.Windows.Forms.PictureBox picBallOn;
-        private System.Windows.Forms.Timer timerComputer;
         private System.Windows.Forms.Timer timerSplash;
         private System.Windows.Forms.Label lblCSharpSnooker;
         private System.Windows.Forms.Label lblWin;

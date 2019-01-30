@@ -13,7 +13,7 @@ namespace CSharpSnooker.WinForms.Components
 
 
 
-        public PocketManager(MainForm mainForm)
+        public PocketManager()
         {
             Pockets = new List<Pocket>()
             {
@@ -48,13 +48,13 @@ namespace CSharpSnooker.WinForms.Components
                 return;
             }
 
-            if (!ball.IsBallInPocket)
+            if (!ball.IsInPocket)
             {
                 OnPotting?.Invoke(new BallPottedEventArgs(ball, pocket));
             }
 
             if (ball.Position.X != ball.LastX || ball.Position.Y != ball.LastY)
-                ball.IsBallInPocket = true;
+                ball.IsInPocket = true;
 
             if (ball.Id != "01")
             {

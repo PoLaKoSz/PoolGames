@@ -11,20 +11,18 @@ namespace CSharpSnooker.WinForms.Components
         public List<Ball> PottedBalls { get; private set; }
         public List<Ball> FallenBalls { get; private set; }
         public List<Ball> StrokenBalls { get; private set; }
+        public Ball CueBall => Balls[0];
 
 
 
-        public BallManager(MainForm mainForm)
+        public BallManager()
         {
-            Load(mainForm);
-            StrokenBalls = new List<Ball>();
-            FallenBalls = new List<Ball>();
-            PottedBalls = new List<Ball>();
+            Load();
         }
 
 
 
-        public void Load(MainForm mainForm)
+        public void Load()
         {
             Image imgRedBall    = Image.FromFile(@"Images\RedBall.PNG");
             Image imgWhiteBall  = Image.FromFile(@"Images\whiteball.PNG");
@@ -37,22 +35,26 @@ namespace CSharpSnooker.WinForms.Components
 
             Balls = new List<Ball>()
             {
-                new Ball("white", mainForm, 497, 140, imgWhiteBall, points: 0),
+                new Ball("white", 497, 140, imgWhiteBall, points: 0),
 
-                new Ball("red01", mainForm, 121, 152, imgRedBall, points: 1),
-                new Ball("red02", mainForm, 121, 171, imgRedBall, 1),
-                new Ball("red03", mainForm, 121, 190, imgRedBall, 1),
-                new Ball("red04", mainForm, 140, 162, imgRedBall, 1),
-                new Ball("red05", mainForm, 140, 180, imgRedBall, 1),
-                new Ball("red06", mainForm, 159, 171, imgRedBall, 1),
+                new Ball("red01", 121, 152, imgRedBall, points: 1),
+                new Ball("red02", 121, 171, imgRedBall, 1),
+                new Ball("red03", 121, 190, imgRedBall, 1),
+                new Ball("red04", 140, 162, imgRedBall, 1),
+                new Ball("red05", 140, 180, imgRedBall, 1),
+                new Ball("red06", 159, 171, imgRedBall, 1),
 
-                new Ball("yellow", mainForm, 469, 115, imgYellowBall, points: 2),
-                new Ball("green",  mainForm, 469, 228, imgGreenBall,  3),
-                new Ball("brown",  mainForm, 469, 171, imgBrownBall,  4),
-                new Ball("blue",   mainForm, 298, 171, imgBlueBall,   5),
-                new Ball("pink",   mainForm, 178, 171, imgPinkBall,   6),
-                new Ball("black",  mainForm,  50, 171, imgBlackBall,  7),
+                new Ball("yellow", 469, 115, imgYellowBall, points: 2),
+                new Ball("green",  469, 228, imgGreenBall,  3),
+                new Ball("brown",  469, 171, imgBrownBall,  4),
+                new Ball("blue",   298, 171, imgBlueBall,   5),
+                new Ball("pink",   178, 171, imgPinkBall,   6),
+                new Ball("black",   50, 171, imgBlackBall,  7),
             };
+
+            StrokenBalls = new List<Ball>();
+            FallenBalls = new List<Ball>();
+            PottedBalls = new List<Ball>();
         }
 
         /// <summary>
@@ -67,7 +69,7 @@ namespace CSharpSnooker.WinForms.Components
 
             foreach (Ball ball in Balls)
             {
-                if (1 < ball.Points && ball.Points < minPoints && !ball.IsBallInPocket)
+                if (1 < ball.Points && ball.Points < minPoints && !ball.IsInPocket)
                 {
                     minColouredball = ball;
                     minPoints = minColouredball.Points;
@@ -83,7 +85,7 @@ namespace CSharpSnooker.WinForms.Components
 
             foreach (Ball ball in Balls)
             {
-                if (ball.Points == 1 && !ball.IsBallInPocket)
+                if (ball.Points == 1 && !ball.IsInPocket)
                 {
                     validRedBalls.Add(ball);
                 }
@@ -104,7 +106,7 @@ namespace CSharpSnooker.WinForms.Components
 
             foreach (Ball ball in Balls)
             {
-                if (!ball.IsBallInPocket && ball.Points > 1)
+                if (!ball.IsInPocket && ball.Points > 1)
                 {
                     float xd = (float)(x - ball.X);
                     float yd = (float)(y - ball.Y);
@@ -142,7 +144,7 @@ namespace CSharpSnooker.WinForms.Components
                 {
                     foreach (Ball collisionBall in Balls)
                     {
-                        if (!collisionBall.IsBallInPocket)
+                        if (!collisionBall.IsInPocket)
                         {
                             if (collisionBall.Id != candidateBall.Id)
                             {
@@ -176,7 +178,7 @@ namespace CSharpSnooker.WinForms.Components
             int i = 0;
             foreach (Ball ball in Balls)
             {
-                if (ball.Points == 1 && !ball.IsBallInPocket)
+                if (ball.Points == 1 && !ball.IsInPocket)
                 {
                     validRedBalls.Add(i);
                 }
@@ -193,6 +195,43 @@ namespace CSharpSnooker.WinForms.Components
                 redBallOn = Balls[validRedBalls[index]];
             }
             return redBallOn;
+        }
+
+        public bool AreColliding(Ball ball1, Ball ball2)
+        {
+            if (!ball1.IsInPocket && !ball2.IsInPocket)
+            {
+                float xd = (float)(ball2.Position.X - ball1.X);
+                float yd = (float)(ball2.Position.Y - ball1.Y);
+
+                float sumRadius = (float)((Ball.Radius + 1.0) * 2);
+                float sqrRadius = sumRadius * sumRadius;
+
+                float distSqr = (xd * xd) + (yd * yd);
+
+                if (Math.Round(distSqr) < Math.Round(sqrRadius))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public Ball GetNextBallOn(Player player)
+        {
+            Ball nextBallOn = null;
+
+            if (player.BallOn == null || player.BallOn.Points == 1)
+            {
+                nextBallOn = GetRandomRedBall();
+            }
+            else
+            {
+                nextBallOn = GetMinColouredball();
+            }
+
+            return nextBallOn;
         }
     }
 }

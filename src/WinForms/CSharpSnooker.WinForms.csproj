@@ -50,10 +50,16 @@
   <ItemGroup>
     <Compile Include="Components\BallManager.cs" />
     <Compile Include="Components\BorderManager.cs" />
+    <Compile Include="Components\CollisionManager.cs" />
+    <Compile Include="Components\ComputerViewModel.cs" />
+    <Compile Include="Components\GameEngine.cs" />
     <Compile Include="Components\PlayerManger.cs" />
+    <Compile Include="Components\PlayerViewModel.cs" />
     <Compile Include="Components\PocketManager.cs" />
+    <Compile Include="Components\Simulator.cs" />
     <Compile Include="Components\SnapShotGenerator.cs" />
     <Compile Include="Components\SoundManager.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -65,9 +71,8 @@
     <Compile Include="Models\BallPosition.cs" />
     <Compile Include="Models\DiagonalBorder.cs" />
     <Compile Include="Models\Events\BallPottedEventArgs.cs" />
+    <Compile Include="Models\Events\BallsCollisionEventArgs.cs" />
     <Compile Include="Models\Events\BorderCollisionEventArgs.cs" />
-    <Compile Include="Models\IBallObserver.cs" />
-    <Compile Include="Models\IRemotingObserver.cs" />
     <Compile Include="Models\Player.cs" />
     <Compile Include="Models\Pocket.cs" />
     <Compile Include="Models\Sound.cs" />

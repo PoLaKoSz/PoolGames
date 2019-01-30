@@ -7,10 +7,11 @@ namespace CSharpSnooker.WinForms.Components
     {
         public Player CurrentPlayer => GetCurrentPlayer();
         public Player OtherPlayer => GetOtherPlayer();
+        public PlayerViewModel CurrentPlayerVM => GetCurrentPlayerVM();
 
 
-        private readonly Player _player1;
-        private readonly Player _player2;
+        private readonly PlayerViewModel _player1;
+        private readonly PlayerViewModel _player2;
 
         private int _currentPlayerIndex;
 
@@ -21,11 +22,11 @@ namespace CSharpSnooker.WinForms.Components
         /// </summary>
         /// <param name="player1">Non null object.</param>
         /// <param name="player2">Non null object.</param>
-        public PlayerManager(Player player1, Player player2)
+        public PlayerManager(PlayerViewModel player1, PlayerViewModel player2)
         {
             _player1 = player1;
             _player2 = player2;
-            _currentPlayerIndex = 0;
+            _currentPlayerIndex = 1;
         }
 
 
@@ -45,6 +46,8 @@ namespace CSharpSnooker.WinForms.Components
                 _currentPlayerIndex = 0;
             }
 
+            GetCurrentPlayerVM().GiveControl();
+
             return CurrentPlayer;
         }
 
@@ -54,12 +57,10 @@ namespace CSharpSnooker.WinForms.Components
         public void EndMatch()
         {
             CurrentPlayer.FoulList = new List<int>();
-            CurrentPlayer.JustSwapped = false;
             CurrentPlayer.BallOn = null;
             CurrentPlayer.Points = 0;
 
             OtherPlayer.FoulList = new List<int>();
-            OtherPlayer.JustSwapped = false;
             OtherPlayer.BallOn = null;
             OtherPlayer.Points = 0;
         }
@@ -69,11 +70,11 @@ namespace CSharpSnooker.WinForms.Components
         {
             if (_currentPlayerIndex == 0)
             {
-                return _player1;
+                return _player1.Model;
             }
             else
             {
-                return _player2;
+                return _player2.Model;
             }
         }
 
@@ -81,11 +82,23 @@ namespace CSharpSnooker.WinForms.Components
         {
             if (_currentPlayerIndex == 0)
             {
-                return _player2;
+                return _player2.Model;
             }
             else
             {
+                return _player1.Model;
+            }
+        }
+
+        private PlayerViewModel GetCurrentPlayerVM()
+        {
+            if (_currentPlayerIndex == 0)
+            {
                 return _player1;
+            }
+            else
+            {
+                return _player2;
             }
         }
     }
