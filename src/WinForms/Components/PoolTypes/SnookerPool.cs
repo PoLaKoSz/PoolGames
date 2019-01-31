@@ -15,6 +15,7 @@ namespace CSharpSnooker.WinForms.Components.PoolTypes
         public bool HasWinner { get; private set; }
 
         private PlayerManager _playerManager;
+        private BallManager _ballManager;
 
 
 
@@ -51,9 +52,10 @@ namespace CSharpSnooker.WinForms.Components.PoolTypes
 
 
 
-        public void InitBallOn(PlayerManager playerManager)
+        public void InitBallOn(PlayerManager playerManager, BallManager ballManager)
         {
             _playerManager = playerManager;
+            _ballManager = ballManager;
 
             _playerManager.CurrentPlayer.BallOn = GetRandomRedBall();
             _playerManager.OtherPlayer.BallOn = GetRandomRedBall();
@@ -207,14 +209,34 @@ namespace CSharpSnooker.WinForms.Components.PoolTypes
             ballManager.PottedBalls.Clear();
         }
 
+        /// <summary>
+        /// Returns all balls that the current player can shot down.
+        /// </summary>
+        /// <param name="player">Non null object.</param>
+        /// <returns>Non null object.</returns>
+        public List<Ball> PottableBalls(Player player)
+        {
+            var balls = new List<Ball>();
+
+            if (player.BallOn == null)
+            {
+                balls = ColouredBalls();
+            }
+            else if (player.BallOn.Points == 1)
+            {
+                balls = RedBalls();
+            }
+            else
+            {
+                balls.Add(player.BallOn);
+            }
+
+            return balls;
+        }
+
 
         private void ChooseNextBallOn(BallManager ballManager, PlayerManager playerManager, int availableRedCount, bool isLostBreak)
         {
-            // Ha van még piros labra
-            //      - és az előző BallOn nem piros volt
-            //      - és az előző BallOn piros volt
-            // Ha nincs piros labda, akkor a legkisebb színes
-
             if (isLostBreak && 0 < availableRedCount)
             {
                 playerManager.CurrentPlayer.BallOn = GetRandomRedBall();
@@ -262,7 +284,22 @@ namespace CSharpSnooker.WinForms.Components.PoolTypes
             return minColouredball;
         }
 
-        private List<Ball> GetValidRedBalls()
+        private List<Ball> ColouredBalls()
+        {
+            var balls = new List<Ball>();
+
+            foreach (Ball ball in _ballManager.Balls)
+            {
+                if (!ball.IsInPocket && 1 < ball.Points)
+                {
+                    balls.Add(ball);
+                }
+            }
+
+            return balls;
+        }
+
+        private List<Ball> RedBalls()
         {
             List<Ball> validRedBalls = new List<Ball>();
 

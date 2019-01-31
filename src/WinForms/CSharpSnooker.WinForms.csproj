@@ -51,6 +51,7 @@
     <Compile Include="Components\BallManager.cs" />
     <Compile Include="Components\BorderManager.cs" />
     <Compile Include="Components\CollisionManager.cs" />
+    <Compile Include="Components\ComputerShotGenerator.cs" />
     <Compile Include="Components\ComputerViewModel.cs" />
     <Compile Include="Components\GameEngine.cs" />
     <Compile Include="Components\PlayerManger.cs" />

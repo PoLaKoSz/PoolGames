@@ -23,9 +23,9 @@ namespace CSharpSnooker.WinForms.Components
         /// <param name="name">Name of the human player.</param>
         /// <param name="ballManager">Non null object.</param>
         /// <param name="pocketManager">Non null object.</param>
-        public PlayerManager(string name, BallManager ballManager, PocketManager pocketManager)
+        public PlayerManager(string name, BallManager ballManager, ComputerShotGenerator computerShotGenerator)
         {
-            _player1 = new ComputerViewModel(new Player(1, "Computer", isComputer: true), ballManager, pocketManager);
+            _player1 = new ComputerViewModel(new Player(1, "Computer", isComputer: true), computerShotGenerator);
             _player2 = new PlayerViewModel(new Player(2, name));
             _currentPlayerIndex = 1;
         }

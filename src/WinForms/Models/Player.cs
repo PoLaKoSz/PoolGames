@@ -10,7 +10,6 @@ namespace CSharpSnookerCore.Models
         public int Points { get; set; }
         public List<int> FoulList { get; set; }
         public int Strength { get; set; }
-        public int ShotCount { get; set; }
         public Vector2D TestPosition { get; set; }
         public int TestStrength { get; set; }
         public bool IsComputer { get; }

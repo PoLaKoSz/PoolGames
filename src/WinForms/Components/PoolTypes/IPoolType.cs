@@ -1,4 +1,5 @@
 ﻿using CSharpSnookerCore.Models;
+using System.Collections.Generic;
 
 namespace CSharpSnooker.WinForms.Components.PoolTypes
 {
@@ -12,8 +13,15 @@ namespace CSharpSnooker.WinForms.Components.PoolTypes
         bool HasWinner { get; }
 
 
-        void InitBallOn(PlayerManager playerManager);
+        void InitBallOn(PlayerManager playerManager, BallManager ballManager);
 
         void ProcessFallenBalls(BallManager ballManager, PlayerManager playerManager);
+
+        /// <summary>
+        /// Returns all balls that the current player can shot down.
+        /// </summary>
+        /// <param name="player">Non null object.</param>
+        /// <returns>Non null object.</returns>
+        List<Ball> PottableBalls(Player player);
     }
 }

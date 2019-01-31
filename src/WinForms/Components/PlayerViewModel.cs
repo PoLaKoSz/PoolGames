@@ -15,7 +15,7 @@ namespace CSharpSnooker.WinForms.Components
 
 
 
-        public virtual Vector2D Hitting()
+        public virtual Vector2D GiveControl(PlayerManager playerManager, Simulator simulator)
         {
             return null;
         }

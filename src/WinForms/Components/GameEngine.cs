@@ -39,11 +39,10 @@ namespace CSharpSnooker.WinForms.Components
             _ballManager.Load(_poolType.Balls);
 
             _pocketManager = new PocketManager();
-            _pocketManager.OnPotting += OnBallPotting;
 
-            _playerManager = new PlayerManager("Human", _ballManager, _pocketManager);
+            _playerManager = new PlayerManager("Human", _ballManager, new ComputerShotGenerator(_ballManager, _pocketManager, _poolType));
 
-            _poolType.InitBallOn(_playerManager);
+            _poolType.InitBallOn(_playerManager, _ballManager);
 
             View = new MainForm(this, _playerManager)
             {
@@ -53,12 +52,12 @@ namespace CSharpSnooker.WinForms.Components
             _snapShotGenerator = new SnapShotGenerator(View.picTable, _soundManager);
 
             _borderManager = new BorderManager();
-            _borderManager.OnCollision += OnBorderCollision;
 
             _collisionManager = new CollisionManager();
-            _collisionManager.OnBallsCollision += OnBallsCollision;
 
             _simulator = new Simulator(_snapShotGenerator, _pocketManager, _borderManager, _collisionManager);
+
+            SubScribeEvents();
 
             ClearSounds();
 
@@ -74,6 +73,20 @@ namespace CSharpSnooker.WinForms.Components
         }
 
 
+
+        private void SubScribeEvents()
+        {
+            _pocketManager.OnPotting += OnBallPotting;
+            _borderManager.OnCollision += OnBorderCollision;
+            _collisionManager.OnBallsCollision += OnBallsCollision;
+        }
+
+        private void UnSubScribeEvents()
+        {
+            _pocketManager.OnPotting -= OnBallPotting;
+            _borderManager.OnCollision -= OnBorderCollision;
+            _collisionManager.OnBallsCollision -= OnBallsCollision;
+        }
 
         private void OnBallPotting(BallPottedEventArgs e)
         {
@@ -96,8 +109,7 @@ namespace CSharpSnooker.WinForms.Components
             {
                 soundIntensity = 5;
             }
-
-            if (soundIntensity < 1)
+            else if (soundIntensity < 1)
             {
                 soundIntensity = 1;
             }
@@ -125,8 +137,6 @@ namespace CSharpSnooker.WinForms.Components
 
             SetCueBallVelocity(x, y);
 
-            //_playerManager.CurrentPlayerVM.HitBall(new Vector2D(x, y), cueBall, View.CueBallSpinVector);
-
             _simulator.ReceiveShot(_ballManager, _playerManager.CurrentPlayer);
 
             _snapShotGenerator.PlayLastShot();
@@ -149,10 +159,16 @@ namespace CSharpSnooker.WinForms.Components
 
             SetBallOnImage();
 
-            Vector2D position = _playerManager.CurrentPlayerVM.Hitting();
+            if (_playerManager.CurrentPlayer.IsComputer)
+            {
+                UnSubScribeEvents();
 
-            if (position != null)
-                HitBall((int)position.X, (int)position.Y);
+                var shotVector = _playerManager.CurrentPlayerVM.GiveControl(_playerManager, _simulator);
+
+                SubScribeEvents();
+
+                HitBall((int)shotVector.X, (int)shotVector.Y);
+            }
         }
 
         private void SetCueBallVelocity(int x, int y)
@@ -160,7 +176,7 @@ namespace CSharpSnooker.WinForms.Components
             // 20 is the maximum velocity
             double v = 20 * (_playerManager.CurrentPlayer.Strength / 100.0);
 
-            // Calculates the cue angle, and the translate velocity (normal velocity)
+            // Calculates the Cue angle, and the translate velocity (normal velocity)
             double deltaX = x - _ballManager.CueBall.X;
             double deltaY = y - _ballManager.CueBall.Y;
 
@@ -178,8 +194,6 @@ namespace CSharpSnooker.WinForms.Components
             // Calculates the top spin/back spin velocity, in the same direction as the normal velocity, but in opposite angle
             double topBottomVelocityRatio = _ballManager.CueBall.TranslateVelocity.Lenght() * (View.CueBallSpinVector.Y / 100.0);
             _ballManager.CueBall.VSpinVelocity = new Vector2D(-1.0d * topBottomVelocityRatio * normalVelocity.X, -1.0d * topBottomVelocityRatio * normalVelocity.Y);
-
-            _playerManager.CurrentPlayer.ShotCount++;
         }
 
         private void RefreshTable()
@@ -253,6 +267,11 @@ namespace CSharpSnooker.WinForms.Components
         private void SetBallOnImage()
         {
             View.SetBallOnImage(_playerManager.CurrentPlayer.BallOn);
+        }
+
+        ~GameEngine()
+        {
+            UnSubScribeEvents();
         }
     }
 }
