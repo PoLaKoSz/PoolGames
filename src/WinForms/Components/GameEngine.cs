@@ -41,9 +41,7 @@ namespace CSharpSnooker.WinForms.Components
             _pocketManager = new PocketManager();
             _pocketManager.OnPotting += OnBallPotting;
 
-            _playerManager = new PlayerManager(
-                new ComputerViewModel(new Player(1, "Computer", isComputer: true), _ballManager, _pocketManager),
-                new PlayerViewModel(new Player(2, "Human")));
+            _playerManager = new PlayerManager("Human", _ballManager, _pocketManager);
 
             _poolType.InitBallOn(_playerManager);
 

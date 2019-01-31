@@ -1,4 +1,3 @@
-using CSharpSnooker.WinForms.Components;
 using System.Collections.Generic;
 
 namespace CSharpSnookerCore.Models

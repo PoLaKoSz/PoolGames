@@ -18,14 +18,15 @@ namespace CSharpSnooker.WinForms.Components
 
 
         /// <summary>
-        /// Initialize a new instance and sets player1 as the current.
+        /// Initialize a new instance with a Computer vs. Human game.
         /// </summary>
-        /// <param name="player1">Non null object.</param>
-        /// <param name="player2">Non null object.</param>
-        public PlayerManager(PlayerViewModel player1, PlayerViewModel player2)
+        /// <param name="name">Name of the human player.</param>
+        /// <param name="ballManager">Non null object.</param>
+        /// <param name="pocketManager">Non null object.</param>
+        public PlayerManager(string name, BallManager ballManager, PocketManager pocketManager)
         {
-            _player1 = player1;
-            _player2 = player2;
+            _player1 = new ComputerViewModel(new Player(1, "Computer", isComputer: true), ballManager, pocketManager);
+            _player2 = new PlayerViewModel(new Player(2, name));
             _currentPlayerIndex = 1;
         }
 
