@@ -28,7 +28,7 @@ namespace CSharpSnooker.WinForms.Components
             ball2.Position = ball2.Position.Subtract(mtd.Multiply(im2 / (im1 + im2)));
 
             // Impact speed
-            Vector2D v = (ball1.TranslateVelocity.Subtract(ball2.TranslateVelocity));
+            Vector2D v = (ball1.Velocity.Subtract(ball2.Velocity));
             float vn = v.Dot(mtd.Normalize());
 
             // Sphere intersecting but moving away from each other already
@@ -42,8 +42,8 @@ namespace CSharpSnooker.WinForms.Components
             OnBallsCollision?.Invoke(new BallsCollisionEventArgs(ball1, impulse));
 
             // change in momentum
-            ball1.TranslateVelocity = ball1.TranslateVelocity.Add(impulse.Multiply(im1));
-            ball2.TranslateVelocity = ball2.TranslateVelocity.Subtract(impulse.Multiply(im2));
+            ball1.Velocity = ball1.Velocity.Add(impulse.Multiply(im1));
+            ball2.Velocity = ball2.Velocity.Subtract(impulse.Multiply(im2));
         }
 
         public void ResolveCollision(Ball ball, DiagonalBorder diagonalBorder)
@@ -96,7 +96,7 @@ namespace CSharpSnooker.WinForms.Components
             ball.Position = ball.Position.Subtract(mtd.Multiply(im2 / (im1 + im2)));
 
             // impact speed
-            Vector2D v = ball.TranslateVelocity.Multiply(-1);
+            Vector2D v = ball.Velocity.Multiply(-1);
             float vn = v.Dot(mtd.Normalize());
 
             // sphere intersecting but moving away from each other already
@@ -108,7 +108,7 @@ namespace CSharpSnooker.WinForms.Components
             Vector2D impulse = mtd.Multiply(i);
 
             // change in momentum
-            ball.TranslateVelocity = ball.TranslateVelocity.Subtract(impulse.Multiply(im2));
+            ball.Velocity = ball.Velocity.Subtract(impulse.Multiply(im2));
         }
 
         public void ResolveCollision(Ball ball, TableBorder tableBorder, RectangleCollision collision)
@@ -121,21 +121,21 @@ namespace CSharpSnooker.WinForms.Components
                 {
                     case RectangleCollision.Right:
                     case RectangleCollision.Left:
-                        if (Math.Sign(ball.TranslateVelocity.X) == Math.Sign(ball.VSpinVelocity.X) && ball.VSpinVelocity.X > 0.0)
+                        if (Math.Sign(ball.Velocity.X) == Math.Sign(ball.VSpinVelocity.X) && ball.VSpinVelocity.X > 0.0)
                         {
-                            ball.TranslateVelocity.X += ball.VSpinVelocity.X;
+                            ball.Velocity.X += ball.VSpinVelocity.X;
                             ball.VSpinVelocity.X = (double)0.0;
                         }
-                        ball.TranslateVelocity.X *= -1.0d * absorption;
+                        ball.Velocity.X *= -1.0d * absorption;
                         break;
                     case RectangleCollision.Bottom:
                     case RectangleCollision.Top:
-                        if (Math.Sign(ball.TranslateVelocity.Y) == Math.Sign(ball.VSpinVelocity.Y) && ball.VSpinVelocity.Y > 0.0)
+                        if (Math.Sign(ball.Velocity.Y) == Math.Sign(ball.VSpinVelocity.Y) && ball.VSpinVelocity.Y > 0.0)
                         {
-                            ball.TranslateVelocity.Y += ball.VSpinVelocity.Y;
+                            ball.Velocity.Y += ball.VSpinVelocity.Y;
                             ball.VSpinVelocity.Y = (double)0.0;
                         }
-                        ball.TranslateVelocity.Y *= -1.0d * absorption;
+                        ball.Velocity.Y *= -1.0d * absorption;
                         break;
                 }
             }
@@ -146,12 +146,12 @@ namespace CSharpSnooker.WinForms.Components
                 switch (tableBorder.Direction)
                 {
                     case ForcedDirection.Up:
-                        ball.TranslateVelocity.Y *= -0.5d;
-                        ball.TranslateVelocity.X = ball.TranslateVelocity.Y * -0.5d;
+                        ball.Velocity.Y *= -0.5d;
+                        ball.Velocity.X = ball.Velocity.Y * -0.5d;
                         break;
                     case ForcedDirection.Down:
-                        ball.TranslateVelocity.Y *= -0.5d;
-                        ball.TranslateVelocity.X = ball.TranslateVelocity.Y * -0.5d;
+                        ball.Velocity.Y *= -0.5d;
+                        ball.Velocity.X = ball.Velocity.Y * -0.5d;
                         break;
                 }
             }

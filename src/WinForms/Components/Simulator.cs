@@ -49,18 +49,6 @@ namespace CSharpSnooker.WinForms.Components
 
         private void MoveBalls()
         {
-            foreach (Ball ball in _ballManager.Balls)
-            {
-                if (Math.Abs(ball.X) < 5 && Math.Abs(ball.Y) < 5 && Math.Abs(ball.TranslateVelocity.X) < 10 && Math.Abs(ball.TranslateVelocity.Y) < 10)
-                {
-                    ball.X =
-                        ball.Y = 0;
-
-                    ball.TranslateVelocity.X =
-                        ball.TranslateVelocity.Y = 0;
-                }
-            }
-
             bool conflicted = true;
 
             while (conflicted)
@@ -83,8 +71,8 @@ namespace CSharpSnooker.WinForms.Components
                     {
                         if (ballA.IsInPocket)
                         {
-                            ballA.TranslateVelocity.X =
-                            ballA.TranslateVelocity.Y = 0.0;
+                            ballA.Velocity.X =
+                            ballA.Velocity.Y = 0.0;
                         }
 
                         foreach (DiagonalBorder diagonalBorder in _borderManager.DiagonalBorders)
@@ -133,21 +121,21 @@ namespace CSharpSnooker.WinForms.Components
 
                         if (ballA.IsInPocket)
                         {
-                            ballA.TranslateVelocity.X =
-                                ballA.TranslateVelocity.Y =
+                            ballA.Velocity.X =
+                                ballA.Velocity.Y =
                                 ballA.VSpinVelocity.X =
                                 ballA.VSpinVelocity.Y = 0.0d;
                         }
 
-                        if (ballA.TranslateVelocity.X != 0.0d ||
-                            ballA.TranslateVelocity.Y != 0.0d)
+                        if (ballA.Velocity.X != 0.0d ||
+                            ballA.Velocity.Y != 0.0d)
                         {
 
-                            double signalXVelocity = ballA.TranslateVelocity.X >= 0 ? 1.0 : -1.0;
-                            double signalYVelocity = ballA.TranslateVelocity.Y >= 0 ? 1.0 : -1.0;
+                            double signalXVelocity = ballA.Velocity.X >= 0 ? 1.0 : -1.0;
+                            double signalYVelocity = ballA.Velocity.Y >= 0 ? 1.0 : -1.0;
 
-                            double absXVelocity = Math.Abs(ballA.TranslateVelocity.X);
-                            double absYVelocity = Math.Abs(ballA.TranslateVelocity.Y);
+                            double absXVelocity = Math.Abs(ballA.Velocity.X);
+                            double absYVelocity = Math.Abs(ballA.Velocity.Y);
 
                             Vector2D absVelocity = new Vector2D(absXVelocity, absYVelocity);
 
@@ -171,7 +159,7 @@ namespace CSharpSnooker.WinForms.Components
                             if (double.IsNaN(vy))
                                 vy = 0;
 
-                            ballA.TranslateVelocity = new Vector2D(vx, vy);
+                            ballA.Velocity = new Vector2D(vx, vy);
                         }
 
                         if (ballA.VSpinVelocity.X != 0.0d || ballA.VSpinVelocity.Y != 0.0d)
@@ -200,8 +188,8 @@ namespace CSharpSnooker.WinForms.Components
 
                     foreach (Ball ball in _ballManager.Balls)
                     {
-                        ball.Position.X += ball.TranslateVelocity.X + ball.VSpinVelocity.X;
-                        ball.Position.Y += ball.TranslateVelocity.Y + ball.VSpinVelocity.Y;
+                        ball.Position.X += ball.Velocity.X + ball.VSpinVelocity.X;
+                        ball.Position.Y += ball.Velocity.Y + ball.VSpinVelocity.Y;
                     }
                 }
 
@@ -212,8 +200,8 @@ namespace CSharpSnooker.WinForms.Components
             double totalVelocity = 0;
             foreach (Ball ball in _ballManager.Balls)
             {
-                totalVelocity += ball.TranslateVelocity.X;
-                totalVelocity += ball.TranslateVelocity.Y;
+                totalVelocity += ball.Velocity.X;
+                totalVelocity += ball.Velocity.Y;
             }
 
             if (PoolState == PoolState.Moving && totalVelocity == 0)

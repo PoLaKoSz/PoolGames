@@ -186,13 +186,13 @@ namespace CSharpSnooker.WinForms.Components
             double cos = deltaX / h;
 
             _ballManager.CueBall.IsInPocket = false;
-            _ballManager.CueBall.TranslateVelocity.X = v * cos;
-            _ballManager.CueBall.TranslateVelocity.Y = v * sin;
+            _ballManager.CueBall.Velocity.X = v * cos;
+            _ballManager.CueBall.Velocity.Y = v * sin;
 
-            Vector2D normalVelocity = _ballManager.CueBall.TranslateVelocity.Normalize();
+            Vector2D normalVelocity = _ballManager.CueBall.Velocity.Normalize();
 
             // Calculates the top spin/back spin velocity, in the same direction as the normal velocity, but in opposite angle
-            double topBottomVelocityRatio = _ballManager.CueBall.TranslateVelocity.Lenght() * (View.CueBallSpinVector.Y / 100.0);
+            double topBottomVelocityRatio = _ballManager.CueBall.Velocity.Lenght() * (View.CueBallSpinVector.Y / 100.0);
             _ballManager.CueBall.VSpinVelocity = new Vector2D(-1.0d * topBottomVelocityRatio * normalVelocity.X, -1.0d * topBottomVelocityRatio * normalVelocity.Y);
         }
 

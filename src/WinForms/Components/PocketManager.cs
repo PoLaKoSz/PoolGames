@@ -56,14 +56,11 @@ namespace CSharpSnooker.WinForms.Components
             if (ball.Position.X != ball.LastX || ball.Position.Y != ball.LastY)
                 ball.IsInPocket = true;
 
-            if (ball.Id != "01")
-            {
-                ball.Position.X = pocket.X;
-                ball.Position.Y = pocket.Y;
-            }
+            ball.Position.X = pocket.X;
+            ball.Position.Y = pocket.Y;
 
-            ball.TranslateVelocity.X = 0;
-            ball.TranslateVelocity.Y = 0;
+            ball.Velocity.X = 0;
+            ball.Velocity.Y = 0;
         }
     }
 }

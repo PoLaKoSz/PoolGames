@@ -59,20 +59,20 @@ namespace CSharpSnooker.WinForms.Components
 
             if (!ball.IsInPocket)
             {
-                if (tableBorder.X < 288 && (ball.X - Ball.Radius < tableBorder.X + tableBorder.Width) && (ball.Y >= tableBorder.Y && ball.Y <= tableBorder.Y + tableBorder.Height) && (ball.TranslateVelocity.X + ball.VSpinVelocity.X < 0.0d) && (ball.LastX > tableBorder.X + tableBorder.Width))
+                if (tableBorder.X < 288 && (ball.X - Ball.Radius < tableBorder.X + tableBorder.Width) && (ball.Y >= tableBorder.Y && ball.Y <= tableBorder.Y + tableBorder.Height) && (ball.Velocity.X + ball.VSpinVelocity.X < 0.0d) && (ball.LastX > tableBorder.X + tableBorder.Width))
                 {
                     collision = RectangleCollision.Right;
                 }
-                else if (tableBorder.X > 288 && (ball.X + Ball.Radius > tableBorder.X) && (ball.Y >= tableBorder.Y && ball.Y <= tableBorder.Y + tableBorder.Height) && (ball.TranslateVelocity.X + ball.VSpinVelocity.X > 0.0d) && (ball.LastX < tableBorder.X))
+                else if (tableBorder.X > 288 && (ball.X + Ball.Radius > tableBorder.X) && (ball.Y >= tableBorder.Y && ball.Y <= tableBorder.Y + tableBorder.Height) && (ball.Velocity.X + ball.VSpinVelocity.X > 0.0d) && (ball.LastX < tableBorder.X))
                 {
                     collision = RectangleCollision.Left;
                 }
 
-                if (tableBorder.Y < 161 && (ball.Y - Ball.Radius < tableBorder.Y + tableBorder.Height) && (ball.X >= tableBorder.X && ball.X - Ball.Radius <= tableBorder.X + tableBorder.Width) && (ball.TranslateVelocity.Y + ball.VSpinVelocity.Y < 0.0d) && (ball.LastY > tableBorder.Y) && (ball.LastX < tableBorder.X + tableBorder.Width))
+                if (tableBorder.Y < 161 && (ball.Y - Ball.Radius < tableBorder.Y + tableBorder.Height) && (ball.X >= tableBorder.X && ball.X - Ball.Radius <= tableBorder.X + tableBorder.Width) && (ball.Velocity.Y + ball.VSpinVelocity.Y < 0.0d) && (ball.LastY > tableBorder.Y) && (ball.LastX < tableBorder.X + tableBorder.Width))
                 {
                     collision = RectangleCollision.Bottom;
                 }
-                else if (tableBorder.Y > 161 && (ball.Y + Ball.Radius > tableBorder.Y) && (ball.X >= tableBorder.X && ball.X <= tableBorder.X + tableBorder.Width) && (ball.TranslateVelocity.Y + ball.VSpinVelocity.Y > 0.0d) && (ball.LastY < tableBorder.Y) && (ball.LastY < tableBorder.Y) && (ball.LastX < tableBorder.X + tableBorder.Width))
+                else if (tableBorder.Y > 161 && (ball.Y + Ball.Radius > tableBorder.Y) && (ball.X >= tableBorder.X && ball.X <= tableBorder.X + tableBorder.Width) && (ball.Velocity.Y + ball.VSpinVelocity.Y > 0.0d) && (ball.LastY < tableBorder.Y) && (ball.LastY < tableBorder.Y) && (ball.LastX < tableBorder.X + tableBorder.Width))
                 {
                     collision = RectangleCollision.Top;
                 }
