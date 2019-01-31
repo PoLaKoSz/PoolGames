@@ -91,7 +91,7 @@ namespace CSharpSnooker.WinForms.Components
                         {
                             if (_borderManager.CheckCollision(ballA, diagonalBorder) && !ballA.IsInPocket)
                             {
-                                diagonalBorder.ResolveCollision(ballA);
+                                _collisionManager.ResolveCollision(ballA, diagonalBorder);
                             }
                         }
 
@@ -103,7 +103,7 @@ namespace CSharpSnooker.WinForms.Components
                             if (borderCollision != RectangleCollision.None && !ballA.IsInPocket)
                             {
                                 someCollision = true;
-                                tableBorder.ResolveCollision(ballA, borderCollision);
+                                _collisionManager.ResolveCollision(ballA, tableBorder, borderCollision);
                             }
                         }
 
