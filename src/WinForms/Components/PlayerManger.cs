@@ -46,8 +46,6 @@ namespace CSharpSnooker.WinForms.Components
                 _currentPlayerIndex = 0;
             }
 
-            GetCurrentPlayerVM().GiveControl();
-
             return CurrentPlayer;
         }
 

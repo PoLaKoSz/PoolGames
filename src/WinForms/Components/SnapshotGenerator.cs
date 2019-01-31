@@ -109,8 +109,6 @@ namespace CSharpSnooker.WinForms.Components
         /// </summary>
         private void PlayCurrentSnapShot()
         {
-            //Plays an individual frame, by replacing the image of the picturebox with
-            //the stored image of a frame
             _pool.Image = _whiteBitmapList[_currentSnapShot - 1];
             _pool.Refresh();
 

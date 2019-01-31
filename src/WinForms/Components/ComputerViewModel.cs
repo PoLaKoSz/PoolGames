@@ -8,14 +8,12 @@ namespace CSharpSnooker.WinForms.Components
         private readonly BallManager _ballManager;
         private readonly PocketManager _pocketManager;
 
-        private static readonly int _maxBreakAttempts;
         private static readonly Random _random;
 
 
 
         static ComputerViewModel()
         {
-            _maxBreakAttempts = 2;
             _random = new Random();
         }
 
@@ -28,16 +26,6 @@ namespace CSharpSnooker.WinForms.Components
         }
 
 
-
-        public override void GiveControl()
-        {
-            HitBall(
-                new Vector2D((_random.Next(0) + 30), (_random.Next(0) + 30)),
-                _ballManager.CueBall,
-                new Vector2D(0, 0));
-
-            //GenerateComputerShot();
-        }
 
         public override Vector2D Hitting()
         {
