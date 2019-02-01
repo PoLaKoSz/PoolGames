@@ -13,15 +13,15 @@ namespace CSharpSnooker.WinForms.Components
         {
             // Get the mtd
             Vector2D delta = (ball1.Position.Subtract(ball2.Position));
-            float d = delta.Lenght();
+            double d = delta.Lenght();
 
             // Minimum translation distance to push balls apart after intersecting
-            Vector2D mtd = delta.Multiply((float)(((Ball.Radius + 1.0 + Ball.Radius + 1.0) - d) / d));
+            Vector2D mtd = delta.Multiply((((Ball.Radius + 1.0 + Ball.Radius + 1.0) - d) / d));
 
             // resolve intersection --
             // inverse mass quantities
-            float im1 = 1f;
-            float im2 = 1f;
+            double im1 = 1f;
+            double im2 = 1f;
 
             // Push-pull them apart based off their mass
             ball1.Position = ball1.Position.Add((mtd.Multiply(im1 / (im1 + im2))));
@@ -29,14 +29,14 @@ namespace CSharpSnooker.WinForms.Components
 
             // Impact speed
             Vector2D v = (ball1.Velocity.Subtract(ball2.Velocity));
-            float vn = v.Dot(mtd.Normalize());
+            double vn = v.Dot(mtd.Normalize());
 
             // Sphere intersecting but moving away from each other already
-            if (vn > 0.0f)
+            if (vn > 0.0d)
                 return;
 
             // Collision impulse
-            float i = Math.Abs((float)((-(1.0f + 0.1) * vn) / (im1 + im2)));
+            double i = Math.Abs(((-(1.0f + 0.1) * vn) / (im1 + im2)));
             Vector2D impulse = mtd.Multiply(1);
 
             OnBallsCollision?.Invoke(new BallsCollisionEventArgs(ball1, impulse));
@@ -57,19 +57,19 @@ namespace CSharpSnooker.WinForms.Components
             {
                 case Side.Southeast:
                     y = (int)(-ball.X);
-                    maxPoint = new Vector2D((double)(ball.X + Ball.CosBall45) - 1, (double)(ball.Y + Ball.CosBall45) - 1);
+                    maxPoint = new Vector2D((ball.X + Ball.CosBall45) - 1, (ball.Y + Ball.CosBall45) - 1);
                     break;
                 case Side.Northwest:
                     y = (int)(ball.X);
-                    maxPoint = new Vector2D((double)(ball.X - Ball.CosBall45) + 1, (double)(ball.Y - Ball.CosBall45) + 1);
+                    maxPoint = new Vector2D((ball.X - Ball.CosBall45) + 1, (ball.Y - Ball.CosBall45) + 1);
                     break;
                 case Side.Northeast:
                     y = (int)(ball.X);
-                    maxPoint = new Vector2D((double)(ball.X + Ball.CosBall45) - 1, (double)(ball.Y - Ball.CosBall45) + 1);
+                    maxPoint = new Vector2D((ball.X + Ball.CosBall45) - 1, (ball.Y - Ball.CosBall45) + 1);
                     break;
                 case Side.Southwest:
                     y = (int)(ball.X);
-                    maxPoint = new Vector2D((double)(ball.X - Ball.CosBall45) + 2, (double)(ball.Y + Ball.CosBall45) - 2);
+                    maxPoint = new Vector2D(ball.X - Ball.CosBall45 + 2, (ball.Y + Ball.CosBall45) - 2);
                     break;
             }
 
@@ -83,28 +83,29 @@ namespace CSharpSnooker.WinForms.Components
 
             // get the mtd
             Vector2D delta = (position.Subtract(ball.Position));
-            float d = delta.Lenght();
+            double d = delta.Lenght();
+
             // minimum translation distance to push balls apart after intersecting
-            Vector2D mtd = delta.Multiply((float)(((Ball.Radius) - d) / d));
+            Vector2D mtd = delta.Multiply(((Ball.Radius) - d) / d);
 
             // resolve intersection --
             // inverse mass quantities
-            float im1 = 0.5f;
-            float im2 = 0.5f;
+            double im1 = 0.5d;
+            double im2 = 0.5d;
 
             // push-pull them apart based off their mass2
             ball.Position = ball.Position.Subtract(mtd.Multiply(im2 / (im1 + im2)));
 
             // impact speed
             Vector2D v = ball.Velocity.Multiply(-1);
-            float vn = v.Dot(mtd.Normalize());
+            double vn = v.Dot(mtd.Normalize());
 
             // sphere intersecting but moving away from each other already
-            if (vn > 0.0f)
+            if (vn > 0.0d)
                 return;
 
             // collision impulse
-            float i = Math.Abs((float)((-(1.0f + 0.3) * vn) / (im1 + im2)));
+            double i = Math.Abs((-(1.0f + 0.3) * vn) / (im1 + im2));
             Vector2D impulse = mtd.Multiply(i);
 
             // change in momentum
@@ -113,7 +114,7 @@ namespace CSharpSnooker.WinForms.Components
 
         public void ResolveCollision(Ball ball, TableBorder tableBorder, RectangleCollision collision)
         {
-            float absorption = 0.9f;
+            double absorption = 0.9d;
 
             if (tableBorder.Direction == ForcedDirection.None)
             {
@@ -124,7 +125,7 @@ namespace CSharpSnooker.WinForms.Components
                         if (Math.Sign(ball.Velocity.X) == Math.Sign(ball.VSpinVelocity.X) && ball.VSpinVelocity.X > 0.0)
                         {
                             ball.Velocity.X += ball.VSpinVelocity.X;
-                            ball.VSpinVelocity.X = (double)0.0;
+                            ball.VSpinVelocity.X = 0.0;
                         }
                         ball.Velocity.X *= -1.0d * absorption;
                         break;
@@ -133,7 +134,7 @@ namespace CSharpSnooker.WinForms.Components
                         if (Math.Sign(ball.Velocity.Y) == Math.Sign(ball.VSpinVelocity.Y) && ball.VSpinVelocity.Y > 0.0)
                         {
                             ball.Velocity.Y += ball.VSpinVelocity.Y;
-                            ball.VSpinVelocity.Y = (double)0.0;
+                            ball.VSpinVelocity.Y = 0.0;
                         }
                         ball.Velocity.Y *= -1.0d * absorption;
                         break;

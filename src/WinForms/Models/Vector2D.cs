@@ -39,11 +39,11 @@ namespace CSharpSnookerCore.Models
             return (result);
         }
 
-        public Vector2D Add(float f)
+        public Vector2D Add(double d)
         {
             Vector2D result = new Vector2D(this);
-            result.X += f;
-            result.Y += f;
+            result.X += d;
+            result.Y += d;
             return (result);
         }
 
@@ -87,20 +87,19 @@ namespace CSharpSnookerCore.Models
             return (result);
         }
 
-        public float Lenght()
+        public double Lenght()
         {
-            float ret = (float)(Math.Sqrt(Math.Pow(this.X, 2) + Math.Pow(this.Y, 2)));
-            return ret;
+            return Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2));
         }
 
-        public float Dot(Vector2D v)
+        public double Dot(Vector2D v)
         {
-            return ((float)(X * v.X + Y * v.Y));
+            return (X * v.X + Y * v.Y);
         }
 
         public Vector2D Normalize()
         {
-            float l = Lenght();
+            double l = Lenght();
 
             Vector2D result = new Vector2D(this);
             result.X = result.X / l;

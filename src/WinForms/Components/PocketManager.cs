@@ -35,13 +35,13 @@ namespace CSharpSnooker.WinForms.Components
         /// <param name="pocket">The ball destination pocket.</param>
         public void DetectPotting(Ball ball, Pocket pocket)
         {
-            float xd = (float)(pocket.X - ball.X);
-            float yd = (float)(pocket.Y - ball.Y);
+            double xd = (pocket.X - ball.X);
+            double yd = (pocket.Y - ball.Y);
 
-            float sumRadius = (float)(Ball.Radius * 1.5);
-            float sqrRadius = sumRadius * sumRadius;
+            double sumRadius = (Ball.Radius * 1.5);
+            double sqrRadius = sumRadius * sumRadius;
 
-            float distSqr = (xd * xd) + (yd * yd);
+            double distSqr = (xd * xd) + (yd * yd);
 
             if (Math.Round(distSqr) > Math.Round(sqrRadius))
             {

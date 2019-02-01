@@ -34,13 +34,13 @@ namespace CSharpSnooker.WinForms.Components
         {
             if (!ball1.IsInPocket && !ball2.IsInPocket)
             {
-                float xd = (float)(ball2.Position.X - ball1.X);
-                float yd = (float)(ball2.Position.Y - ball1.Y);
+                double xd = (ball2.Position.X - ball1.X);
+                double yd = (ball2.Position.Y - ball1.Y);
 
-                float sumRadius = (float)((Ball.Radius + 1.0) * 2);
-                float sqrRadius = sumRadius * sumRadius;
+                double sumRadius = ((Ball.Radius + 1.0) * 2);
+                double sqrRadius = sumRadius * sumRadius;
 
-                float distSqr = (xd * xd) + (yd * yd);
+                double distSqr = (xd * xd) + (yd * yd);
 
                 if (Math.Round(distSqr) < Math.Round(sqrRadius))
                 {
@@ -65,13 +65,13 @@ namespace CSharpSnooker.WinForms.Components
             {
                 if (!ball.IsInPocket && ball.Points > 1)
                 {
-                    float xd = (float)(x - ball.X);
-                    float yd = (float)(y - ball.Y);
+                    double xd = (x - ball.X);
+                    double yd = (y - ball.Y);
 
-                    float sumRadius = (float)(Ball.Radius);
-                    float sqrRadius = sumRadius * sumRadius;
+                    double sumRadius = (Ball.Radius);
+                    double sqrRadius = sumRadius * sumRadius;
 
-                    float distSqr = (xd * xd) + (yd * yd);
+                    double distSqr = (xd * xd) + (yd * yd);
 
                     if (Math.Round(distSqr) < Math.Round(sqrRadius))
                     {

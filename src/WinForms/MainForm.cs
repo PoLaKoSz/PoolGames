@@ -134,13 +134,13 @@ namespace CSharpSnooker.WinForms
             int ballY = (int)(targetRectangle.Y + targetRectangle.Height / 2.0);
             int ballRadius = targetRectangle.Width / 2;
 
-            float xd = (x - ballX);
-            float yd = (y - ballY);
+            double xd = (x - ballX);
+            double yd = (y - ballY);
 
-            float sumRadius = (targetRectangle.Width / 2);
-            float sqrRadius = sumRadius * sumRadius;
+            double sumRadius = (targetRectangle.Width / 2);
+            double sqrRadius = sumRadius * sumRadius;
 
-            float distSqr = (xd * xd) + (yd * yd);
+            double distSqr = (xd * xd) + (yd * yd);
 
             if (Math.Round(distSqr) < Math.Round(sqrRadius))
             {
@@ -162,12 +162,12 @@ namespace CSharpSnooker.WinForms
                 int ballY = (targetRectangle.Y + targetRectangle.Height / 2);
                 int ballRadius = targetRectangle.Width / 2;
 
-                float xd = (e.X - ballX);
-                float yd = (e.Y - ballY);
+                double xd = (e.X - ballX);
+                double yd = (e.Y - ballY);
 
-                float sqrRadius = ballRadius * ballRadius;
+                double sqrRadius = ballRadius * ballRadius;
 
-                float distSqr = (xd * xd) + (yd * yd);
+                double distSqr = (xd * xd) + (yd * yd);
 
                 if (Math.Round(distSqr) < Math.Round(sqrRadius))
                 {

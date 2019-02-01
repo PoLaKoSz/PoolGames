@@ -335,13 +335,13 @@ namespace CSharpSnooker.WinForms.Components.PoolTypes
                         {
                             if (collisionBall.Id != candidateBall.Id)
                             {
-                                float xd = (float)(candidateBall.InitPosition.X - collisionBall.X);
-                                float yd = (float)(candidateBall.InitPosition.Y - collisionBall.Y);
+                                double xd = (candidateBall.InitPosition.X - collisionBall.X);
+                                double yd = (candidateBall.InitPosition.Y - collisionBall.Y);
 
-                                float sumRadius = (float)(Ball.Radius * 0.5);
-                                float sqrRadius = sumRadius * sumRadius;
+                                double sumRadius = (Ball.Radius * 0.5);
+                                double sqrRadius = sumRadius * sumRadius;
 
-                                float distSqr = (xd * xd) + (yd * yd);
+                                double distSqr = (xd * xd) + (yd * yd);
 
                                 if (Math.Round(distSqr) < Math.Round(sqrRadius))
                                 {

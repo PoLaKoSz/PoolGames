@@ -98,7 +98,7 @@ namespace CSharpSnooker.WinForms.Components
                     int x = (int)ball.X + (int)Ball.Radius;
                     int y = (int)ball.Y + (int)Ball.Radius;
 
-                    Vector2D maxPoint = new Vector2D((double)(ball.X + Ball.CosBall45) - 1, (double)(ball.Y + Ball.CosBall45) - 1);
+                    Vector2D maxPoint = new Vector2D((ball.X + Ball.CosBall45) - 1, (ball.Y + Ball.CosBall45) - 1);
 
                     if ((x - baseX + y - baseY >= diagonalBorder.Width) && (maxPoint.X >= diagonalBorder.X1 && maxPoint.X <= diagonalBorder.X2 && maxPoint.Y >= diagonalBorder.Y2 && maxPoint.Y <= diagonalBorder.Y1))
                     {
@@ -110,7 +110,7 @@ namespace CSharpSnooker.WinForms.Components
                     int x = (int)ball.X - (int)Ball.Radius;
                     int y = (int)ball.Y - (int)Ball.Radius;
 
-                    Vector2D maxPoint = new Vector2D((double)(ball.X - Ball.CosBall45) - 1, (double)(ball.Y - Ball.CosBall45) - 1);
+                    Vector2D maxPoint = new Vector2D((ball.X - Ball.CosBall45) - 1, (ball.Y - Ball.CosBall45) - 1);
 
                     if ((x - baseX + y - baseY <= diagonalBorder.Width) && (maxPoint.X >= diagonalBorder.X1 && maxPoint.X <= diagonalBorder.X2 && maxPoint.Y >= diagonalBorder.Y2 && maxPoint.Y <= diagonalBorder.Y1))
                     {
@@ -122,7 +122,7 @@ namespace CSharpSnooker.WinForms.Components
                     int x = (int)ball.X + (int)Ball.Radius;
                     int y = (int)ball.Y - (int)Ball.Radius;
 
-                    Vector2D maxPoint = new Vector2D((double)(ball.X + Ball.CosBall45) - 1, (double)(ball.Y - Ball.CosBall45) - 1);
+                    Vector2D maxPoint = new Vector2D((ball.X + Ball.CosBall45) - 1, (ball.Y - Ball.CosBall45) - 1);
 
                     if ((x - baseX + diagonalBorder.Y2 - y >= diagonalBorder.Width) && (maxPoint.X >= diagonalBorder.X1 && maxPoint.X <= diagonalBorder.X2 && maxPoint.Y >= diagonalBorder.Y1 && maxPoint.Y <= diagonalBorder.Y2))
                     {
@@ -134,7 +134,7 @@ namespace CSharpSnooker.WinForms.Components
                     int x = (int)ball.X - (int)Ball.Radius;
                     int y = (int)ball.Y + (int)Ball.Radius;
 
-                    Vector2D maxPoint = new Vector2D((double)(ball.X - Ball.CosBall45) - 1, (double)(ball.Y + Ball.CosBall45) - 1);
+                    Vector2D maxPoint = new Vector2D((ball.X - Ball.CosBall45) - 1, (ball.Y + Ball.CosBall45) - 1);
 
                     if ((x - baseX + diagonalBorder.Y2 - y <= diagonalBorder.Width) && (maxPoint.X >= diagonalBorder.X1 && maxPoint.X <= diagonalBorder.X2 && maxPoint.Y >= diagonalBorder.Y1 && maxPoint.Y <= diagonalBorder.Y2))
                     {

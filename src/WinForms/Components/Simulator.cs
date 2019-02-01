@@ -15,7 +15,7 @@ namespace CSharpSnooker.WinForms.Components
         private readonly BorderManager _borderManager;
         private readonly CollisionManager _collisionManager;
 
-        private static readonly float _friction = 0.0075F;
+        private static readonly double _friction = 0.0075d;
 
 
 
