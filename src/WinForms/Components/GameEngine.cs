@@ -44,10 +44,7 @@ namespace CSharpSnooker.WinForms.Components
 
             _poolType.InitBallOn(_playerManager, _ballManager);
 
-            View = new MainForm(this, _playerManager)
-            {
-                BallManager = _ballManager
-            };
+            View = new MainForm(this, _playerManager);
 
             _snapShotGenerator = new SnapShotGenerator(View.picTable, _soundManager);
 
@@ -146,6 +143,8 @@ namespace CSharpSnooker.WinForms.Components
             if (_poolType.HasWinner)
             {
                 View.ShowWinner();
+
+                _playerManager.EndMatch();
                 return;
             }
 
