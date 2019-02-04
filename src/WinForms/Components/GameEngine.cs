@@ -67,6 +67,12 @@ namespace CSharpSnooker.WinForms.Components
             _snapShotGenerator.PlayLastShot();
 
             SetBallOnImage();
+
+#if DEBUG
+            var uiDebugger = new UiDebugger(View, _pocketManager, _borderManager);
+            uiDebugger.AddPockets();
+            uiDebugger.AddBorders();
+#endif
         }
 
 

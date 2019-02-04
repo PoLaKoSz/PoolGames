@@ -135,23 +135,23 @@ namespace CSharpSnooker.WinForms
             ChangeCursor(Cursors.SizeAll);
         }
 
+        public void PoolTable_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+                _viewModel.PoolTable_MouseUp(e);
+        }
+
+        public void PoolTable_MouseMove(object sender, MouseEventArgs e)
+        {
+            _viewModel.PoolTable_MouseMove(e);
+        }
+
 
         private void BallOnTimer_Tick(object sender, EventArgs e)
         {
             picBallOn.Top = 90 + (PlayerManager.CurrentPlayer.Id - 1) * 58;
             _showBallOn = !_showBallOn;
             picBallOn.Visible = _showBallOn;
-        }
-
-        private void PoolTable_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-                _viewModel.PoolTable_MouseUp(e);
-        }
-
-        private void PoolTable_MouseMove(object sender, MouseEventArgs e)
-        {
-            _viewModel.PoolTable_MouseMove(e);
         }
 
         private bool SetStrength(int x, int y)
