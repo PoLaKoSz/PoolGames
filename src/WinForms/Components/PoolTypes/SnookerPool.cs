@@ -176,16 +176,16 @@ namespace CSharpSnooker.WinForms.Components.PoolTypes
 
             if (wonPoints == 0 || lostPoints > 0)
             {
-                ChooseNextBallOn(ballManager, playerManager, availableRedCount, isLostBreak: true);
-
                 playerManager.CurrentPlayer.Points -= lostPoints;
                 playerManager.OtherPlayer.Points += lostPoints;
 
                 playerManager.Switch();
+
+                ChooseNextBallOn(ballManager, playerManager.CurrentPlayer, availableRedCount, isLostBreak: true);
             }
             else
             {
-                ChooseNextBallOn(ballManager, playerManager, availableRedCount, isLostBreak: false);
+                ChooseNextBallOn(ballManager, playerManager.CurrentPlayer, availableRedCount, isLostBreak: false);
 
                 playerManager.CurrentPlayer.Points += wonPoints;
             }
@@ -235,30 +235,30 @@ namespace CSharpSnooker.WinForms.Components.PoolTypes
         }
 
 
-        private void ChooseNextBallOn(BallManager ballManager, PlayerManager playerManager, int availableRedCount, bool isLostBreak)
+        private void ChooseNextBallOn(BallManager ballManager, Player player, int availableRedCount, bool isLostBreak)
         {
             if (isLostBreak && 0 < availableRedCount)
             {
-                playerManager.CurrentPlayer.BallOn = GetRandomRedBall();
+                player.BallOn = GetRandomRedBall();
             }
             else if (isLostBreak && 0 == availableRedCount)
             {
-                playerManager.CurrentPlayer.BallOn = GetMinColouredball();
+                player.BallOn = GetMinColouredball();
             }
-            else if (0 < availableRedCount && playerManager.CurrentPlayer.BallOn.Points != 1)
+            else if (0 < availableRedCount && player.BallOn.Points != 1)
             {
-                playerManager.CurrentPlayer.BallOn = GetRandomRedBall();
+                player.BallOn = GetRandomRedBall();
             }
-            else if (0 < availableRedCount && playerManager.CurrentPlayer.BallOn.Points == 1)
+            else if (0 < availableRedCount && player.BallOn.Points == 1)
             {
-                if (!playerManager.CurrentPlayer.IsComputer)
-                    playerManager.CurrentPlayer.BallOn = null;
+                if (!player.IsComputer)
+                    player.BallOn = null;
                 else
-                    playerManager.CurrentPlayer.BallOn = GetMinColouredball();
+                    player.BallOn = GetMinColouredball();
             }
             else if (0 == availableRedCount)
             {
-                playerManager.CurrentPlayer.BallOn = GetMinColouredball();
+                player.BallOn = GetMinColouredball();
             }
         }
 

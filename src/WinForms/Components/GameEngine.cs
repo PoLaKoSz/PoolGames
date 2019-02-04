@@ -232,6 +232,7 @@ namespace CSharpSnooker.WinForms.Components
                     {
                         _playerManager.CurrentPlayer.BallOn = bOn;
                         View.AimWithCueBall();
+                        SetBallOnImage();
                     }
                 }
                 else
