@@ -52,12 +52,10 @@ namespace CSharpSnookerCore.Models
         public Ball(string id, int x, int y, Image image, int points)
         {
             Id            = id;
-            Position.X    = x;
-            Position.Y    = y;
+            Position      = new Vector2D(x, y);
             LastX         = x;
             LastY         = y;
             InitPosition  = new Vector2D(x, y);
-            Position      = new Vector2D(0, 0);
             Velocity      = new Vector2D(0, 0);
             VSpinVelocity = new Vector2D(0, 0);
             Image         = image;
@@ -118,4 +116,3 @@ namespace CSharpSnookerCore.Models
         }
     }
 }
-
